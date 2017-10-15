@@ -26,8 +26,10 @@ We also know, Mirai was a botnet that spread by only checking IOT-Devices for de
 So we go on the Webserver first and see: NOTHING. But why shouldn't we run nikto on it just to see if it got something juicy?
 Lets see.
 **NIKTO SNIPPET**
+
 ```+ OSVDB-3093: /admin/index.php: This might be interesting... has been seen in web logs from an unknown scanner.
 ```
+
 After we go to the admin/index.php page, we see its a raspberry pi. After googling few minutes, the default login credentials for a raspberry pi are:
 *pi:raspberry*
 Let's go to SSH and login.
@@ -51,7 +53,9 @@ This is a security risk - please login as the 'pi' user and type 'passwd' to set
 
 pi@raspberrypi:~ $ 
 ``` 
+
 We got in. Show me what you got.
+
 ```pi@raspberrypi:~ $ ls -a
 .              .config          .thumbnails           Public
 ..             .dbus            .xsession-errors      Templates
