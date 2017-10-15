@@ -16,11 +16,14 @@ Service detection performed. Please report any incorrect results at https://nmap
 Nmap done: 1 IP address (1 host up) scanned in 34.56 seconds
 ```
 
-![Alt test](https://github.com/jakobgoerke/HTB-Writeups/blob/master/Devel/Images/IIS7.PNG "IIS7")
-
 
 The website has a default IIS page.
 Something seems fishy!
+
+
+![Alt test](https://github.com/jakobgoerke/HTB-Writeups/blob/master/Devel/Images/IIS7.PNG "IIS7")
+
+
 
 Lets check out ftp
 
@@ -72,6 +75,7 @@ local: test.txt remote: test.txt
 Voila! the file appears.
 
 **Time for some shellz**
+
 Was thinking of doing something with Insomnia shell but heck, metasploit is much easier
 Create a reverse shell payload with msfvenom and upload it via the ftp
 
@@ -184,6 +188,7 @@ We try and browse to the user directory for our flag and we get **Access Denied*
 Looks like we need to escalate privs for the user.txt as well :(
 
 **Priv Esc **
+
 ```{r, engine='bash', count_lines}
 meterpreter > sysinfo
 Computer        : DEVEL
