@@ -1,5 +1,6 @@
 # Lazy
 #### 10.10.10.18
+###### Solved by: Dotaplayer365 and revdev
 
 ```{r, engine='bash', count_lines}
 nmap -sS -sV 10.10.10.18
