@@ -32,6 +32,7 @@ So, lets create a testuser
 After creating a user, there is something peculiar
 Once the user is registered, it automatically logs us in as that user.
 Lets try and create a user with the name admin
+
 ![Alt test](https://github.com/jakobgoerke/HTB-Writeups/blob/master/Lazy/images/adminalreadyexists.PNG "adminalreadyexists")
 
 So admin already exists...
