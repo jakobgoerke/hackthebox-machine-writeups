@@ -27,7 +27,8 @@ So we go on the Webserver first and see: NOTHING. But why shouldn't we run nikto
 Lets see.
 **NIKTO SNIPPET**
 
-```+ OSVDB-3093: /admin/index.php: This might be interesting... has been seen in web logs from an unknown scanner.
+```
++ OSVDB-3093: /admin/index.php: This might be interesting... has been seen in web logs from an unknown scanner.
 ```
 
 After we go to the admin/index.php page, we see its a raspberry pi. After googling few minutes, the default login credentials for a raspberry pi are:
