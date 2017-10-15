@@ -217,7 +217,7 @@ It has some juicy info for us
 [*] Post module execution completed
 ```
 
-We know what exploits are suggester, to make sure, lets see what Hotfixes are installed
+We know what exploits are suggested, to make sure, lets see what Hotfixes are installed
 ```{r, engine='bash', count_lines}
 C:\Users>systeminfo
 systeminfo
