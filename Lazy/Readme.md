@@ -39,6 +39,7 @@ So admin already exists...
 Maybe if we can trick the login form into thinking we have created the admin user, it should automatically log us into admin
 
 Lets try and play with the username input field
+
 So the user we create will be
 ```
 admin =
