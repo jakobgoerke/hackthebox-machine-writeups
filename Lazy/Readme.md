@@ -46,7 +46,10 @@ admin =
 And we are IN!!
 ![Alt test](https://github.com/jakobgoerke/HTB-Writeups/blob/master/Lazy/images/adminpage.PNG "adminpage")
 
+
 There is a ssh key which we can download
+
+
 ![Alt test](https://github.com/jakobgoerke/HTB-Writeups/blob/master/Lazy/images/sshkey.PNG "sshkey")
 
 Something important to note in the key page is the highlighted field. Thats the user the key is for
