@@ -37,7 +37,8 @@ Lets try and create a user with the name admin
 
 So admin already exists...
 Maybe if we can trick the login form into thinking we have created the admin user, it should automatically log us into admin
-Lets try a sql injection with some '=' signs
+
+Lets try and play with the username input field
 So the user we create will be
 ```
 admin =
