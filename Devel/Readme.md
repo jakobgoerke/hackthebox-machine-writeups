@@ -177,7 +177,9 @@ meterpreter >
 We try and browse to the user directory for our flag and we get **Access Denied**
 Looks like we need to escalate privs for the user.txt as well :(
 
-**Priv Esc **
+
+**Priv Esc**
+
 
 ```{r, engine='bash', count_lines}
 meterpreter > sysinfo
