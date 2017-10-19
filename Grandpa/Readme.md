@@ -56,7 +56,7 @@ Microsoft IIS 6.0 - WebDAV 'ScStoragePathFromUrl' Buffer Overf | windows/remote/
 'ScStoragePathFromUrl' exploit :
 >Buffer overflow in the ScStoragePathFromUrl function in the WebDAV service in Internet Information Services (IIS) 6.0 in Microsoft Windows Server 2003 R2 allows remote attackers to execute arbitrary code via a long header beginning with "If: <http://" in a PROPFIND request, as exploited in the wild in July or August 2016.
 
-We already have info from nmap that the PROPFIND request is supported. So it would not be a long shit trying this one out.
+We already know from nmap that the PROPFIND request is supported. So it would'nt be a long shot to try this one out.
 
 ```{r, engine='bash', count_lines}
 msf > search ScStoragePathFromUrl
