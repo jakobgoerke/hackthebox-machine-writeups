@@ -1,5 +1,5 @@
-# Shocker
-### 10.10.10.56
+# Grandpa
+### 10.10.10.14
 ##### Solved by: dotaplayer365 and revdev
 
 ```{r, engine='bash', count_lines}
