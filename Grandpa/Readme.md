@@ -22,8 +22,6 @@ PORT   STATE SERVICE VERSION
 
 ```
 
-
-
 The website shows "Under Construction"
 
 ![Alt test](https://github.com/jakobgoerke/HTB-Writeups/blob/master/Grandpa/images/Website.PNG "Website")
@@ -35,9 +33,6 @@ We try visiting some webpages and we get something like this
 
 Information we have so far:
 * IIS 6.0
-* Misconfiguration
-
-There is a good chance that a known exploit would work because of the misconfiguration
 
 Searching exploits for IIS 6.0 
 
