@@ -1,6 +1,7 @@
 # Grandpa
-### 10.10.10.14
-##### Solved by: dotaplayer365 and revdev
+#### 10.10.10.14
+###### Solved by: Dotaplayer365 and revdev
+
 
 ```{r, engine='bash', count_lines}
 nmap -sS -sV 10.10.10.14
