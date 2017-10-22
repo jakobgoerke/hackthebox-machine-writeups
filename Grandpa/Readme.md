@@ -24,11 +24,11 @@ PORT   STATE SERVICE VERSION
 
 The website shows "Under Construction"
 
-![Alt test](https://github.com/netcatus/HTB-Writeups/blob/master/Grandpa/images/Website.PNG "Website")
+![Alt test](https://github.com/jakobgoerke/HTB-Writeups/blob/master/Grandpa/images/Website.PNG "Website")
 
 We try visiting some webpages and we get something like this
 
-![Alt test](https://github.com/netcatus/HTB-Writeups/blob/master/Grandpa/images/Website.PNG "index.aspx")
+![Alt test](https://github.com/jakobgoerke/HTB-Writeups/blob/master/Grandpa/images/index.aspx.PNG "index.aspx")
 
 
 Information we have so far:
