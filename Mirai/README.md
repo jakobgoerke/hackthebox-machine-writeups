@@ -74,4 +74,98 @@ ff837707441b257a20e32199d7c8838d
 ```
 Voilá. we got in. 
 
-**More will come**
+**Time for rootz**
+
+We know that the default pi user has root privs, so we can just "sudo -i" into the root shell
+
+```
+root@raspberrypi:~# cat root.txt 
+I lost my original root.txt! I think I may have a backup on my USB stick...
+```
+
+Time to check the mountz
+
+```
+root@raspberrypi:/media/usbstick# ls -la
+total 18
+drwxr-xr-x 3 root root  1024 Aug 14 05:27 .
+drwxr-xr-x 3 root root  4096 Aug 14 05:11 ..
+-rw-r--r-- 1 root root   129 Aug 14 05:19 damnit.txt
+drwx------ 2 root root 12288 Aug 14 05:15 lost+found
+
+root@raspberrypi:/media/usbstick# cat damnit.txt 
+Damnit! Sorry man I accidentally deleted your files off the USB stick.
+Do you know if there is any way to get them back?
+
+-James
+```
+
+Looks like James is no James Bond. 
+
+![Alt test](https://media.giphy.com/media/hKNPxrffFH0GY/giphy.gif "Suuure")
+
+Well, Time to use the good old [Double D's](http://www.forensicswiki.org/wiki/Dd)
+
+We first check the device the usb is mounted on
+
+```
+root@raspberrypi:/tmp/Rekt# df
+Filesystem     1K-blocks    Used Available Use% Mounted on
+aufs             8856504 2830048   5553524  34% /
+tmpfs             102408    4948     97460   5% /run
+/dev/sda1        1354528 1354528         0 100% /lib/live/mount/persistence/sda1
+/dev/loop0       1267456 1267456         0 100% /lib/live/mount/rootfs/filesystem.squashfs
+tmpfs             256020       0    256020   0% /lib/live/mount/overlay
+/dev/sda2        8856504 2830048   5553524  34% /lib/live/mount/persistence/sda2
+devtmpfs           10240       0     10240   0% /dev
+tmpfs             256020       8    256012   1% /dev/shm
+tmpfs               5120       4      5116   1% /run/lock
+tmpfs             256020       0    256020   0% /sys/fs/cgroup
+tmpfs             256020      60    255960   1% /tmp
+/dev/sdb            8887      93      8078   2% /media/usbstick
+tmpfs              51204       0     51204   0% /run/user/999
+tmpfs              51204       0     51204   0% /run/user/1000
+```
+
+Target: /dev/sdb
+
+```
+root@raspberrypi:/tmp/Rekt# dd if=/dev/sdb | strings > James-you-fool.txt 
+20480+0 records in
+20480+0 records out
+10485760 bytes (10 MB) copied, 0.284623 s, 36.8 MB/s
+
+root@raspberrypi:/tmp/Rekt# cat James-you-fool.txt 
+>r &
+/media/usbstick
+lost+found
+root.txt
+damnit.txt
+>r &
+>r &
+/media/usbstick
+lost+found
+root.txt
+damnit.txt
+>r &
+/media/usbstick
+2]8^
+lost+found
+root.txt
+damnit.txt
+>r &
+3d3e483143ff12ec505d026fa13e020b
+Damnit! Sorry man I accidentally deleted your files off the USB stick.
+Do you know if there is any way to get them back?
+-James
+```
+A small hurdle but easy to overcome :wink:
+
+![Alt test](https://media.giphy.com/media/vL3mgyhQWkggw/giphy.gif "Recovery")
+
+And we got **rootz**
+
+root.txt : 3d3e483143ff12ec505d026fa13e020b
+
+
+
