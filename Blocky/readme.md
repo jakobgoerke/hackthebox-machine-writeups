@@ -1,1 +1,2 @@
-uno momento, writeup is incoming senior
+#Blocky
+##10.10.10.37
