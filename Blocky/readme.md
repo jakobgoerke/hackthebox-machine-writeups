@@ -26,4 +26,15 @@ Okay. Keep calm and pwn. Let's see what the wpusers database is about.
 
 ![notch](https://github.com/jakobgoerke/HTB-Writeups/blob/master/Blocky/images/notch.png)
 Who that could be.. Maybe the ssh user?!
+
 ![batman](http://i.memeful.com/media/post/4wbB3ow_700wa_0.gif)
+
+After cracking the password and testing it for SSH: we got in and successfully got the **user.txt**.
+
+![ssh](https://github.com/jakobgoerke/HTB-Writeups/blob/master/Blocky/images/ssh.png)
+
+But don't stop. Glad i had a checklist for privilege escalation. After checking some stuff, **sudo -i** worked. No way.
+
+![root](https://github.com/jakobgoerke/HTB-Writeups/blob/master/Blocky/images/root.png)
+
+Boom. got it. Awesome machine, great experience. 
