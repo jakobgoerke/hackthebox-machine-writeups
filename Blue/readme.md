@@ -23,7 +23,7 @@ Service Info: Host: HARIS-PC; OS: Windows; CPE: cpe:/o:microsoft:windows
 Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
 Nmap done: 1 IP address (1 host up) scanned in 110.19 seconds
 ```
-We can see there is no webserver running, but there is windows rpc and smb, if we search up smb exploits we can see a new exploit called EternalBlue like the name of the machine, which was the exploit used in the famous wannacry ransomware to distribute itself between windows machines, so power on metasploit and see if we have any options:
+We can see there is no webserver running, but there is windows rpc and smb, if we search up smb exploits we can see a new exploit called EternalBlue like the name of the machine, which was the exploit used in the famous wannacry ransomware to distribute itself between windows machines, so let's power on metasploit and see if we have any options:
 ```{r, engine='bash', count_lines}
 msf > search name:eternalblue type:exploit
 
