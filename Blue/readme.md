@@ -23,7 +23,44 @@ Service Info: Host: HARIS-PC; OS: Windows; CPE: cpe:/o:microsoft:windows
 Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
 Nmap done: 1 IP address (1 host up) scanned in 110.19 seconds
 ```
-We can see there is no webserver running, but there is windows rpc and smb, if we search up smb exploits we can see a new exploit called EternalBlue like the name of the machine, which was the exploit used in the famous wannacry ransomware to distribute itself between windows machines, so let's power on metasploit and see if we have any options:
+We can see there is no webserver running, but there is smb on port 445, if we search up smb exploits we can see a new exploit called EternalBlue like the name of the machine, which was the exploit used in the infamous wannacry ransomware to distribute itself between windows machines, we can use nmap's "vuln" script to make sure its vulnerable:
+```{r, engine='bash', count_lines}
+nmap -p 445 --script vuln 10.10.10.40
+
+Starting Nmap 7.60 ( https://nmap.org ) at 2017-11-04 06:09 EDT
+Pre-scan script results:
+| broadcast-avahi-dos: 
+|   Discovered hosts:
+|     224.0.0.251
+|   After NULL UDP avahi packet DoS (CVE-2011-1002).
+|_  Hosts are all up (not vulnerable).
+Nmap scan report for 10.10.10.40
+Host is up (0.077s latency).
+
+PORT    STATE SERVICE
+445/tcp open  microsoft-ds
+
+Host script results:
+|_smb-vuln-ms10-054: false
+|_smb-vuln-ms10-061: NT_STATUS_OBJECT_NAME_NOT_FOUND
+| smb-vuln-ms17-010: 
+|   VULNERABLE:
+|   Remote Code Execution vulnerability in Microsoft SMBv1 servers (ms17-010)
+|     State: VULNERABLE
+|     IDs:  CVE:CVE-2017-0143
+|     Risk factor: HIGH
+|       A critical remote code execution vulnerability exists in Microsoft SMBv1
+|        servers (ms17-010).
+|           
+|     Disclosure date: 2017-03-14
+|     References:
+|       https://blogs.technet.microsoft.com/msrc/2017/05/12/customer-guidance-for-wannacrypt-attacks/
+|       https://technet.microsoft.com/en-us/library/security/ms17-010.aspx
+|_      https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-0143
+
+Nmap done: 1 IP address (1 host up) scanned in 49.28 seconds
+```
+Great! nmap reported its vulnerable, so let's power on metasploit and see if we have any options:
 ```{r, engine='bash', count_lines}
 msf > search name:eternalblue type:exploit
 
