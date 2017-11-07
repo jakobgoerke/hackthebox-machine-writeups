@@ -31,7 +31,7 @@ Yes **' or '1' = '1**
 
 Simple sql injection. Seems legit
 
-After the login we get sjuicy stuff
+After the login we get juicy stuff
 <kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Sneaky/images/Post-Login.PNG"></kdb>
 
 Lets make a note of the info:
