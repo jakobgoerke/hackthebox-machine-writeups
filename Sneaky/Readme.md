@@ -79,13 +79,53 @@ Port 161
 
 Investigate Further
 
+We get shit tons of info
+
 ```
 nmap -sS -sU -p 161 -T4 -A 10.10.10.20
 
+161/udp open   snmp    SNMPv1 server; net-snmp SNMPv3 server (public)
 
-
+snmp-interfaces: 
+|   lo
+|     IP address: 127.0.0.1  Netmask: 255.0.0.0
+|     Type: softwareLoopback  Speed: 10 Mbps
+|     Status: up
+|     Traffic stats: 129.30 Kb sent, 129.30 Kb received
+|   eth0
+|     IP address: 10.10.10.20  Netmask: 255.255.255.0
+|     MAC address: 00:50:56:aa:35:f3 (VMware)
+|     Type: ethernetCsmacd  Speed: 4 Gbps
+|     Status: up
+|_    Traffic stats: 45.08 Mb sent, 41.13 Mb received
+| snmp-netstat: 
+|   TCP  127.0.0.1:3306       0.0.0.0:0
+|_  UDP  0.0.0.0:161          *:*
 
 
 ```
+We are SURE that there is a ssh port open, but we cant find it here...
+
+Maybe its ipv6
+
+Let me check what ipv6 we get for the openvpn
+
+```
+inet 10.10.14.52  netmask 255.255.254.0  destination 10.10.14.52
+inet6 dead:beef:2::1032  prefixlen 64  scopeid 0x0<global>
+```
+
+A wise gentelman from stack overflow helped us 
+![Alt test](https://stackoverflow.com/questions/27693120/convert-from-mac-to-ipv6/27693666#27693666)
+
+A little bit or "Trying Harder" and knowing that our local prefix should be dead:beef we get something like this
+
+```
+dead:beef::250:56ff:feaa:815e (HAVE TO CHECK THIS)
+```
+
+lets try and connect to it via ssh and out key
+
+
 
 **_shellz_**
