@@ -109,14 +109,14 @@ We are SURE that there is a ssh port open, but we cant find it here...
 
 Maybe its ipv6
 
-Let me check what ipv6 we get for the openvpn
+Lets check what ipv6 we get for the openvpn
 
 ```{r, engine='bash', count_lines}
 inet 10.10.14.52  netmask 255.255.254.0  destination 10.10.14.52
 inet6 dead:beef:2::1032  prefixlen 64  scopeid 0x0<global>
 ```
 
-A wise gentelman from stack overflow ![stack overflow](https://stackoverflow.com/questions/27693120/convert-from-mac-to-ipv6/27693666#27693666) helped us
+A wise gentelman from ![stack overflow](https://stackoverflow.com/questions/27693120/convert-from-mac-to-ipv6/27693666#27693666) helped us
 <kdb><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Sneaky/images/stack-ipv6.PNG"></kdb>
 
 
