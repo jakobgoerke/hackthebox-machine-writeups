@@ -184,7 +184,7 @@ While checking Advanced Linux File Permissions (Sticky bit, SUID, GUID) we come 
 ```
 
 Ayyaayaay!!
-Its some buffer overshow shizz
+Its some buffer overflow shizz
 
 Debug Mode Activate:
 
