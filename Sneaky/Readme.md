@@ -124,8 +124,9 @@ A wise gentelman from ![stack overflow](https://stackoverflow.com/questions/2769
 A little bit or "Trying Harder" and knowing that our local prefix should be dead:beef we get something like this
 
 ```{r, engine='bash', count_lines}
-dead:beef::250:56ff:feaa:35f3 (HAVE TO CHECK THIS)
+dead:beef::250:56ff:feaa:35f3 
 ```
+The MAC changes after every restart, so this wont always be the same
 
 lets try and connect to it via ssh and out key
 
