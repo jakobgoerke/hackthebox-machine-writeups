@@ -10,17 +10,19 @@ PORT   STATE SERVICE
 
 The website shows that its under construction
 
-![Under Construction](https://github.com/jakobgoerke/HTB-Writeups/blob/master/Sneaky/images/Under-Construction.PNG)
+<kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Sneaky/images/Under-Construction.PNG">
 
 
 Dirbuster Initiate!
+
 <kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Sneaky/images/Dirbuster.PNG"></kbd>
 
 Well ofcourse, its under **dev**elopment
 
+
 We are greeted by a Login screen
 
-![Login Page](https://github.com/jakobgoerke/HTB-Writeups/blob/master/Sneaky/images/Login.PNG)
+<kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Sneaky/images/Login.PNG"></kdb>
 
 
 Whats the autoresponse when we see a poorly made login page ?
@@ -30,7 +32,7 @@ Yes **' or '1' = '1**
 Simple sql injection. Seems legit
 
 After the login we get sjuicy stuff
-![Post Login](https://github.com/jakobgoerke/HTB-Writeups/blob/master/Sneaky/images/Post-Login.PNG)
+<kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Sneaky/images/Post-Login.PNG"></kdb>
 
 Lets make a note of the info:
 
