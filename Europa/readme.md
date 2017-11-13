@@ -69,10 +69,12 @@ Decrypting the md5 hash with some online tools will translate to: **SuperSecretP
 So our login is
 **admin@europacorp.htb:SuperSecretPassword!**
 
-Pretty sure we need to exploit the **OpenVPN Config Generator** located at https://admin-portal.europacorp.htb/tools.php. So after filling in a IP address a config gets generated with our IP address filled in at the locations of ip_address. After googling a bit we found out that the php function **preg_replace** is exploitable.
+Pretty sure we need to exploit the **OpenVPN Config Generator** located at https://admin-portal.europacorp.htb/tools.php. So after filling in a IP address a config gets generated with our IP address filled in at the locations of **ip_address**. After googling a bit we found out that the php function **preg_replace** is exploitable.
 
 Okay intercepting the POST with BurpSuite and send it to the Repeater will leave us with a screen like this:
 ![index.php](https://github.com/jakobgoerke/HTB-Writeups/blob/master/Europa/images/europa_burp.png "BurpSuite")
 
+Passing the -e paramteter to the function will let us execute the replacements text. I only want it to be executed once so I picked a pattern that only occurs once. So I used **/remote_address/e** as the pattern and **phpinfo()** as the text. As you can see below, it executes perfectly.
 
+![index.php](https://github.com/jakobgoerke/HTB-Writeups/blob/master/Europa/images/burp_info.png "phpinfo")
 
