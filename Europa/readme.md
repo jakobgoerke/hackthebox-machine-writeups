@@ -74,7 +74,9 @@ Pretty sure we need to exploit the **OpenVPN Config Generator** located at https
 Okay intercepting the POST with BurpSuite and send it to the Repeater will leave us with a screen like this:
 ![index.php](https://github.com/jakobgoerke/HTB-Writeups/blob/master/Europa/images/europa_burp.png "BurpSuite")
 
-Passing the -e paramteter to the function will let us execute the replacements text. I only want it to be executed once so I picked a pattern that only occurs once. So I used **/remote_address/e** as the pattern and **phpinfo()** as the text. As you can see below, it executes perfectly.
+
+Because we have full access to the regex expression that is used in preg_replace();
+We can pass the **e** modifier which will make the text being executed. I only want it to be executed once so I picked a pattern that only occurs once. As you can see I used **/remote_address/e** as the pattern and **phpinfo()** as the text. It executes perfectly as shown in the screenshot below.
 
 ![index.php](https://github.com/jakobgoerke/HTB-Writeups/blob/master/Europa/images/burp_info.png "phpinfo")
 
