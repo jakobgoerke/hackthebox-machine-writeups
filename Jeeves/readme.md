@@ -64,10 +64,10 @@ and success! we have command execution.
 
 so now lets try to get the user.txt:
 
-![Alt test](https://github.com/jakobgoerke/HTB-Writeups/blob/master/Jeeves/images/userget.png "userget")
+![Alt test](https://github.com/jakobgoerke/HTB-Writeups/blob/master/Jeeves/images/userset.png "userset")
 
 and lets test it:
 
-![Alt test](https://github.com/jakobgoerke/HTB-Writeups/blob/master/Jeeves/images/userset.png "userset")
+![Alt test](https://github.com/jakobgoerke/HTB-Writeups/blob/master/Jeeves/images/userget.png "userget")
 
 GG! we have the user hash!
