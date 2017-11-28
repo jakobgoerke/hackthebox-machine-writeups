@@ -1,4 +1,4 @@
-# Blue
+# Jeeves
 #### 10.10.10.63
 
 Let's run the normal Nmap scan:
@@ -45,5 +45,29 @@ Discovered open port 50000/tcp on 10.10.10.63
 ```
 aha! an open port, which seems to be a Jetty Servlet Server (basically a webserver for java), after some dirbustting we found the /askjeeves/ directory which has a full blown installtion of Jenkins(a popular automatic build server for java) and not only that, its completely open with no password! one of the main features of jeeves is alot of customization of those customization options is running arbitary commands before/after the build started/finished, which is just perfect for us!
 so lets create a new project:
-![Alt test](https://github.com/jakobgoerke/HTB-Writeups/blob/master/Jeeves/images/createproject.PNG "createproject")
 
+![Alt test](https://github.com/jakobgoerke/HTB-Writeups/blob/master/Jeeves/images/createproject.png "createproject")
+
+now lets create a new build action which will run a cmd command:
+
+![Alt test](https://github.com/jakobgoerke/HTB-Writeups/blob/master/Jeeves/images/addbuild.png "addbuild")
+
+set the command to "whoami" just to test the command execution:
+
+![Alt test](https://github.com/jakobgoerke/HTB-Writeups/blob/master/Jeeves/images/whoami.png "whoami")
+
+run the build proccess:
+
+![Alt test](https://github.com/jakobgoerke/HTB-Writeups/blob/master/Jeeves/images/buildnow.png "buildnow")
+
+and success! we have command execution.
+
+so now lets try to get the user.txt:
+
+![Alt test](https://github.com/jakobgoerke/HTB-Writeups/blob/master/Jeeves/images/userget.png "userget")
+
+and lets test it:
+
+![Alt test](https://github.com/jakobgoerke/HTB-Writeups/blob/master/Jeeves/images/userset.png "userset")
+
+GG! we have the user hash!
