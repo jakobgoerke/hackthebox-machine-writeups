@@ -19,12 +19,15 @@ PORT     STATE SERVICE
 
 
 Checking the port 80 shows us that its a Sharepoint server.
-![Alt test](https://media.giphy.com/media/hKNPxrffFH0GY/giphy.gif "Website.png")
+
+<kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Tally/images/Website.PNG"></kbd>
 
 
 When in Thermopylae call a SPartan
 Resource: http://github.com/sensepost/SPartan
-![Alt test](https://media.giphy.com/media/hKNPxrffFH0GY/giphy.gif "Spartan")
+
+
+<kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Tally/images/Spartan.PNG"></kbd>
 
 One of the pages we find has something juicy!
 ```
@@ -32,7 +35,7 @@ One of the pages we find has something juicy!
 [+] [147][200][62875b] - http://10.10.10.59/Shared%20Documents/Forms/AllItems.aspx
 ...
 ```
-![Alt test](https://media.giphy.com/media/hKNPxrffFH0GY/giphy.gif "Allitems.png")
+<kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Tally/images/Allitems.PNG"></kbd>
 
 Lets download "ftp-details.docx and see what its got
 ```
