@@ -2,7 +2,58 @@
 #### 10.10.10.62
 ###### Dotaplayer365
 
-# General Notes
+**Nmap:**
+
+```
+Nmap scan report for fulcrum.htb (10.10.10.62)
+PORT     STATE SERVICE VERSION
+4/tcp    open  http    nginx 1.10.3 (Ubuntu)
+22/tcp   open  ssh     OpenSSH 7.2p2 Ubuntu 4ubuntu2.2 (Ubuntu Linux; protocol 2.0)
+80/tcp   open  http    nginx 1.10.3 (Ubuntu)
+88/tcp   open  http    nginx 1.10.3 (Ubuntu)
+9999/tcp open  http    nginx 1.10.3 (Ubuntu)
+56423/tcp open  unknown
+```
+
+After checking out whats there under those webservers 
+
+* 10.10.10.62:4
+
+    Shows under maintenence
+
+    <kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Fulcrum/Images/Website-4.PNG"></kbd>
+
+    We can see a structure like this: http://10.10.10.62:4/index.php?page=home
+
+    There is a good chance thre is a RFI,  However when we run something like this (http://10.10.10.62:4/index.php?
+page=http://10.10.14.99/test) it doesnt connect to our webserver
+
+* 10.10.10.62:80
+
+    Gives a Server Error
+
+    <kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Fulcrum/Images/Website-80.PNG"></kbd>
+
+* 10.10.10.62:88
+
+    Phpmyadmin
+
+    <kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Fulcrum/Images/Website-88.PNG"></kbd>
+
+
+* 10.10.10.62:9999
+
+    PFSense Firewall
+    
+    <kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Fulcrum/Images/Website-9999.PNG"></kbd>
+
+* 10.10.10.62:56423
+
+    Looks like some api
+
+    <kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Fulcrum/Images/Website-56423.PNG"></kbd>
+
+
 
 
 => Host a php reverse shell
