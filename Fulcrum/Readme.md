@@ -435,6 +435,9 @@ topic.
 Maybe we dont have direct access to the dc, we might have to route the Commands through the file.fulcrum.local
 It will ask for creds twice (Once for the file server and once for the dc) At both places we can enter 923a's creds as it is the domain admin
 
+<kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Fulcrum/Images/923a.PNG"></kbd>
+
+
 ```
 [192.168.1.41]: PS C:\inetpub\wwwroot> Invoke-Command -ComputerName file.fulcrum.local -Credential $creds -ScriptBlock {Invoke-Command
  -ComputerName dc.fulcrum.local -Credential $creds -ScriptBlock {whoami}}
