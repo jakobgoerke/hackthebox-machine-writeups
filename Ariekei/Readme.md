@@ -56,11 +56,11 @@ We can add both of them to our hosts file ofcourse
     
     Maintainence!
     
-    <kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Fulcrum/Images/Website-4.PNG"></kbd>
+    <kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Ariekei/Images/beehive.htb.PNG"></kbd>
     
     After dirbusting we instantly get a page like this! https://beehive.ariekei.htb/cgi-bin/stats/
     
-    <kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Fulcrum/Images/Website-4.PNG"></kbd>
+    <kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Ariekei/Images/shellshock.website.PNG"></kbd>
     
     This screams shellshock!!
     
@@ -115,9 +115,9 @@ oo $ $ "$      o$$$$$$$$$    $$$$$$$$$$$$$    $$$$$$$$$o       $$$o$$o$
 
     Not Found?!
 
-    <kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Fulcrum/Images/Website-4.PNG"></kbd>
+    <kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Ariekei/Images/calvin.htb.PNG"></kbd>
     
-After doing some dirbusting we find a directory named /upload which has a very peculiar looking page
+After doing some dirbusting we find a directory named ```/upload``` which has a very peculiar looking page
     
 I tried to upload some normal jpg files with a simple php shell and some other tricks up my sleeve (which isnt too long )
     
@@ -307,11 +307,17 @@ Looks like a ssh key for the user spanishdancer
 
 It would be better if we could ssh into the user instead of spawning shellz :D
 
-lets go
+Lets go Johnny!
 
-<kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Fulcrum/Images/Website-4.PNG"></kbd>
+<kbd><img src="https://media.giphy.com/media/REej9xTUwlmgM/giphy.gif"></kbd>
 
-<kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Fulcrum/Images/Website-4.PNG"></kbd>
+Step1:
+
+<kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Ariekei/Images/Johnny1.PNG"></kbd>
+
+Step 2:
+
+<kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Ariekei/Images/Johnny2.PNG"></kbd>
 
 Le SSH Password
 
