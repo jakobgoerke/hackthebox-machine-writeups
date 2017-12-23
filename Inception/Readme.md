@@ -32,7 +32,7 @@ If he wants to test dompdf, there has gotta be a dompdf folder right ??!!
 
 Hell yeah there is
 
-<kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Tally/images/Website.PNG"></kbd>
+<kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Inception/Images/dompdf.PNG"></kbd>
 
 What do we do when we find some webapp ?
 
@@ -157,7 +157,7 @@ Uploading dotalol.php to `/webdav_test_inception/dotalol.php':
 Progress: [=============================>] 100.0% of 4687 bytes succeeded.
 ```
 
-<kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Tally/images/Website.PNG"></kbd>
+<kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Inception/Images/phpbash.PNG"></kbd>
 
 We see a wordpress folder which has a config file with some really really juicy creds :D
 
