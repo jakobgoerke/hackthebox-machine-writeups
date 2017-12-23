@@ -240,6 +240,31 @@ You're waiting for a train. A train that will take you far away. Wake up to find
 
 Such Inception much wow !
 
+Lets start our Enumeration...
+
+```ifconfig``` shows that the machines internal ip address is ```192.168.0.10```
+
+We do some ```netstat``` and we see that this machine is communicating with ```192.168.0.1```
+
+I would have loved to use nmap on that shit, but when we got no nmap we always got bash!
+
+Simple port scanner using bash gives us some nice open ports
+
+```
+root@Inception:~# for i in $(seq 1 65535); do timeout 0.1 bash -c " echo &> /dev/tcp/192.168.0.1/$i && echo '$i is open'" 2>/dev/null;done
+
+21 is open
+22 is open
+53 is open
+
+```
+
+It does take some time to complete, but hey, whose complaining! :D
+
+
+
+
+
 
 
 
