@@ -362,13 +362,10 @@ ls
 ..
 ```
 
-Now we just wait for 5 mins and check the /tmp later
+Now we just wait for 5 mins and check the /var/tmp later
 
-
+**root.txt**
 ```
-
+root.txt
+8d1e2e91de427a6fc1a9dc309d563359
 ```
-
-
-Still waiting for root.txt
-<kbd><img src="https://media.giphy.com/media/3ohs7Xldjh7DndQnBu/giphy.gif"></kbd>
