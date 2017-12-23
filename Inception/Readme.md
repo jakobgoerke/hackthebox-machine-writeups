@@ -11,7 +11,7 @@ PORT     STATE SERVICE    VERSION
 |_http-server-header: squid/3.5.12
 ```
 
-We have a webserver which has some tempelate.
+We have a webserver which has some template.
 
 The dude tried to be smart by adding a lot of spaces to add a note, luckily i use curl for first stage enum
 
@@ -36,7 +36,7 @@ Hell yeah there is
 
 What do we do when we find some webapp ?
 
-Yeah! we searchsploit it and hope we hit the motherload. For that we need the version. Its 0.6.0 
+Yeah! we searchsploit it and hope we hit the motherlode. For that we need the version. Its 0.6.0 
 
 ```root@kali:~/hackthebox/Machines/Inception# searchsploit dompdf```
 
@@ -48,7 +48,7 @@ Yeah! we searchsploit it and hope we hit the motherload. For that we need the ve
 
 Feelsgoodman
 
-We use the **33004.txt** and we craft a weburl whcih would look like this
+We use the **33004.txt** and we craft a weburl which would look like this
 
 ```
 http://10.10.10.67/dompdf/dompdf.php?input_file=php://filter/read=convert.base64-encode/resource=/etc/passwd
@@ -94,7 +94,7 @@ Alright! so the exploit works, time to find some juicy stuff.
 
 We check the apache2.conf, and it has nothing, but it says that there is ports.conf as well
 
-We check that and it doesnt have anythiong specific but it has something which i had totally forgotten to check!!
+We check that and it doesnt have anything specific but it has something which i had totally forgotten to check!!
 ```
 # If you just change the port or add more ports here, you will likely also
 # have to change the VirtualHost statement in
@@ -146,8 +146,8 @@ dav:/webdav_test_inception/>
 
 Works like a charm.
 
-From doing the machine **Bashed** we saw a really beautiful online php bash shell for usage 
-[Arrexel's phpbash](https://github.com/Arrexel/phpbash)
+While doing **Bashed** (another box on htb) we saw a really cool php bash shell 
+[Arrexel's phpbash](https://github.com/Arrexel/phpbash) , lets use that!
 
 We upload that using cadaver and visit the page
 
