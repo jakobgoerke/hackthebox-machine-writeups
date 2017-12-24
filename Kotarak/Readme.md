@@ -31,7 +31,7 @@ We have 2 webservers
 
 * **http://kotarak.htb:8080/**
   
-  <kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Fulcrum/Images/Website-4.PNG"></kbd>
+  <kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Kotarak/Images/8080.PNG"></kbd>
   
   We do some dirbusting and we see the /examples directory, whchich comes default with the installation
   
@@ -42,15 +42,15 @@ We have 2 webservers
 
 * **http://kotarak.htb:60000/**
 
-  <kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Fulcrum/Images/Website-4.PNG"></kbd>
+  <kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Kotarak/Images/60000.PNG"></kbd>
   
   Looks like a browser inside a browser (Inception :D )
   
   We try to query the local 8080 page we found and it returns the same thing like before
   
-  <kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Fulcrum/Images/Website-4.PNG"></kbd>
+  <kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Kotarak/Images/localhost.8080.PNG"></kbd>
   
-  <kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Fulcrum/Images/Website-4.PNG"></kbd>
+  <kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Kotarak/Images/localhost.8080.result.PNG"></kbd>
   
   It looks like it some kind of proxy, maybe there are other ports internally which are open
   
@@ -62,7 +62,8 @@ We have 2 webservers
   One of the ports has some juicy info 
   ```http://10.10.10.55:60000/url.php?path=localhost:888/?doc=backup```
   
-  username="admin" password="3@g01PdhB!"
+<kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Kotarak/Images/888.PNG"></kbd>
+
 
 | Username            | Password            |
 | ------------- |:-------------------------:|
@@ -73,7 +74,7 @@ Lets try that Username and Password at the 8080 login page
 
 We are in!!
 
-<kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Fulcrum/Images/Website-4.PNG"></kbd>
+<kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Kotarak/Images/8080login.PNG"></kbd>
 
 Lets create a msfvenom reverse shell payload 
 ```
@@ -106,7 +107,7 @@ Payload options (java/jsp_shell_reverse_tcp):
 
 Upload the .war to the 
 
-<kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Fulcrum/Images/Website-4.PNG"></kbd>
+<kbd><img src="https://github.com/jakobgoerke/HTB-Writeups/blob/master/Kotarak/Images/uploadwar.PNG"></kbd>
 
 After we deplot it, we start the listner and visit ```http://kotarak.htb:8080/dotalol/```
 
